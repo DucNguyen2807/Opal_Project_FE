@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:opal_project/ui/HomePage/HomePage.dart';
 
 class OpalLoginScreen extends StatelessWidget {
   @override
@@ -65,90 +66,14 @@ class OpalLoginScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: Text(
-                    'Bạn chưa có tài khoản?',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black54,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: TextButton(
-                    onPressed: () {
-                      // Chuyển hướng đến màn hình Đăng ký
-                    },
-                    child: Text('Đăng kí'),
-                    style: TextButton.styleFrom(
-                      foregroundColor: Color(0xFF5C9E31),
-                    ),
-                  ),
-                ),
-                Container(
-                  margin: EdgeInsets.symmetric(vertical: 8.0),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(30),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.2),
-                        spreadRadius: 2,
-                        blurRadius: 5,
-                        offset: Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: TextField(
-                    decoration: InputDecoration(
-                      labelText: 'Tên tài khoản',
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                    ),
-                  ),
-                ),
-                Container(
-                  margin: EdgeInsets.symmetric(vertical: 8.0),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(30),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.2),
-                        spreadRadius: 2,
-                        blurRadius: 5,
-                        offset: Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: TextField(
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      labelText: 'Mật khẩu',
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: TextButton(
-                    onPressed: () {
-                      // Xử lý khôi phục mật khẩu
-                    },
-                    child: Text('Bạn quên mật khẩu?'),
-                    style: TextButton.styleFrom(
-                      foregroundColor: Color(0xFF5C9E31),
-                    ),
-                  ),
-                ),
                 SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: () {
-                    // Xử lý đăng nhập
+                    // Thay thế trang hiện tại bằng HomePage
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => HomePage()),
+                    );
                   },
                   child: Text('Đăng nhập'),
                   style: ElevatedButton.styleFrom(
