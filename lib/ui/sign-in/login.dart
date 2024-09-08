@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:opal_project/ui/forgot-password/forgot-password.dart';
 
 class OpalLoginScreen extends StatelessWidget {
+  const OpalLoginScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF5EAC9),
+      backgroundColor: const Color(0xFFF5EAC9),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
-            padding: EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -37,12 +40,12 @@ class OpalLoginScreen extends StatelessWidget {
                       top: 50,
                       left: 250,
                       child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(50),
                         ),
-                        child: Text(
+                        child: const Text(
                           '  Hi!  ',
                           style: TextStyle(
                             fontSize: 25,
@@ -54,8 +57,8 @@ class OpalLoginScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8.0),
                   child: Text(
                     'Đăng nhập',
                     style: TextStyle(
@@ -65,8 +68,8 @@ class OpalLoginScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
+                const Padding(
+                  padding: EdgeInsets.only(top: 8.0),
                   child: Text(
                     'Bạn chưa có tài khoản?',
                     textAlign: TextAlign.center,
@@ -80,16 +83,16 @@ class OpalLoginScreen extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
                   child: TextButton(
                     onPressed: () {
-                      // Chuyển hướng đến màn hình Đăng ký
+
                     },
-                    child: Text('Đăng kí'),
                     style: TextButton.styleFrom(
-                      foregroundColor: Color(0xFF5C9E31),
+                      foregroundColor: const Color(0xFF5C9E31),
                     ),
+                    child: const Text('Đăng kí'),
                   ),
                 ),
                 Container(
-                  margin: EdgeInsets.symmetric(vertical: 8.0),
+                  margin: const EdgeInsets.symmetric(vertical: 8.0),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(30),
@@ -98,11 +101,11 @@ class OpalLoginScreen extends StatelessWidget {
                         color: Colors.grey.withOpacity(0.2),
                         spreadRadius: 2,
                         blurRadius: 5,
-                        offset: Offset(0, 3),
+                        offset: const Offset(0, 3),
                       ),
                     ],
                   ),
-                  child: TextField(
+                  child: const TextField(
                     decoration: InputDecoration(
                       labelText: 'Tên tài khoản',
                       border: InputBorder.none,
@@ -111,7 +114,7 @@ class OpalLoginScreen extends StatelessWidget {
                   ),
                 ),
                 Container(
-                  margin: EdgeInsets.symmetric(vertical: 8.0),
+                  margin: const EdgeInsets.symmetric(vertical: 8.0),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(30),
@@ -120,11 +123,11 @@ class OpalLoginScreen extends StatelessWidget {
                         color: Colors.grey.withOpacity(0.2),
                         spreadRadius: 2,
                         blurRadius: 5,
-                        offset: Offset(0, 3),
+                        offset: const Offset(0, 3),
                       ),
                     ],
                   ),
-                  child: TextField(
+                  child: const TextField(
                     obscureText: true,
                     decoration: InputDecoration(
                       labelText: 'Mật khẩu',
@@ -137,24 +140,29 @@ class OpalLoginScreen extends StatelessWidget {
                   padding: const EdgeInsets.only(top: 8.0),
                   child: TextButton(
                     onPressed: () {
-                      // Xử lý khôi phục mật khẩu
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const OpalForgotPasswordScreen(),
+                        ),
+                      );
                     },
-                    child: Text('Bạn quên mật khẩu?'),
                     style: TextButton.styleFrom(
-                      foregroundColor: Color(0xFF5C9E31),
+                      foregroundColor: const Color(0xFF5C9E31),
                     ),
+                    child: const Text('Bạn quên mật khẩu?'),
                   ),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: () {
                     // Xử lý đăng nhập
                   },
-                  child: Text('Đăng nhập'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFFFFA770),
-                    padding: EdgeInsets.symmetric(vertical: 16.0),
+                    backgroundColor: const Color(0xFFFFA770),
+                    padding: const EdgeInsets.symmetric(vertical: 16.0),
                   ),
+                  child: const Text('Đăng nhập'),
                 ),
               ],
             ),
