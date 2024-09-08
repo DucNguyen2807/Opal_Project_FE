@@ -31,23 +31,23 @@ class CustomCalendar extends StatelessWidget {
       calendarStyle: CalendarStyle(
         todayDecoration: BoxDecoration(
           color: Colors.orangeAccent,
-          shape: BoxShape.circle,
+          borderRadius: BorderRadius.circular(12),
         ),
         selectedDecoration: BoxDecoration(
           color: Colors.greenAccent,
-          shape: BoxShape.circle,
+          borderRadius: BorderRadius.circular(12),
         ),
         defaultDecoration: BoxDecoration(
           color: Color(0xFFF8F1FF),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(12),
         ),
         outsideDecoration: BoxDecoration(
           color: Color(0xFFF0E9F6),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(12),
         ),
         weekendDecoration: BoxDecoration(
           color: Color(0xFFF8F1FF),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(12),
         ),
         weekendTextStyle: TextStyle(color: Colors.red),
         defaultTextStyle: TextStyle(color: Colors.black),
