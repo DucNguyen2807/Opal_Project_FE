@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:opal_project/ui/forgot-password/forgot-password.dart';
+import 'package:opal_project/ui/HomePage/HomePage.dart';
 
 class OpalLoginScreen extends StatelessWidget {
   const OpalLoginScreen({super.key});
@@ -154,9 +155,16 @@ class OpalLoginScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
+
+                SizedBox(height: 16),
+
                 ElevatedButton(
                   onPressed: () {
-                    // Xử lý đăng nhập
+                    // Thay thế trang hiện tại bằng HomePage
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => HomePage()),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFFFA770),

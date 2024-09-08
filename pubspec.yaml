@@ -30,6 +30,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  table_calendar: ^3.0.5
 
 
 
@@ -64,6 +65,10 @@ flutter:
     - assets/logo.png
     - assets/bird.png
     - assets/login-opal.png
+    - assets/icon opal-01.png
+    - assets/icon opal-07.png
+    - assets/icon opal-08.png
+    - assets/icon opal-09.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:
