@@ -3,6 +3,7 @@ import 'package:opal_project/ui/customer-calendar/CustomCalendar.dart'; // Đư�
 import 'dart:collection';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:opal_project/ui/EventPage/EventPage.dart';
+import 'package:opal_project/ui/my-task/mytask.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -97,10 +98,18 @@ class _HomePageState extends State<HomePage> {
             'assets/logo.png',
             height: 120,
           ),
-          CircleAvatar(
-            radius: 25,
-            backgroundColor: Colors.yellowAccent,
-            child: Icon(Icons.person),
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => MytaskScreen()),
+              );
+            },
+            child: CircleAvatar(
+              radius: 25,
+              backgroundColor: Colors.yellowAccent,
+              child: Icon(Icons.person),
+            ),
           ),
         ],
       ),
