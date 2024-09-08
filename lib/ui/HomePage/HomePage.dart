@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:table_calendar/table_calendar.dart';
+import 'package:opal_project/ui/customer-calendar/CustomCalendar.dart'; // Đường dẫn tới CustomCalendar của bạn
 import 'dart:collection';
+import 'package:table_calendar/table_calendar.dart';
+import 'package:opal_project/ui/EventPage/EventPage.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -12,7 +14,7 @@ class _HomePageState extends State<HomePage> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
   LinkedHashMap<DateTime, List<String>> _events = LinkedHashMap();
-  bool isWeekView = false; // Variable to toggle between month/week view
+  bool isWeekView = false;
 
   List<String> _layCongViecChoNgay(DateTime day) {
     return _events[day] ?? [];
@@ -26,7 +28,7 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           children: [
             _xayDungTieuDe(),
-            _xayDungNutChuyenDoi(), // Toggle button for week/month view
+            _xayDungNutChuyenDoi(),
             _xayDungLich(),
             const SizedBox(height: 8),
             _xayDungThanhCongCuDuoi(),
@@ -36,7 +38,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // Header with "June 2024", user avatar, etc.
   Widget _xayDungTieuDe() {
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -55,7 +56,7 @@ class _HomePageState extends State<HomePage> {
                 child: Container(
                   padding: const EdgeInsets.all(8.0),
                   decoration: BoxDecoration(
-                    color: Color(0xFFF58282), // Background color for the button
+                    color: Color(0xFFF58282),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -67,8 +68,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 8), // Space between the two buttons
-              // GestureDetector to detect taps on the "30" button for Month view
+              const SizedBox(height: 8),
               GestureDetector(
                 onTap: () {
                   setState(() {
@@ -79,7 +79,7 @@ class _HomePageState extends State<HomePage> {
                 child: Container(
                   padding: const EdgeInsets.all(8.0),
                   decoration: BoxDecoration(
-                    color: Color(0xFFFFB74D), // Background color for the button
+                    color: Color(0xFFFFB74D),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -93,24 +93,20 @@ class _HomePageState extends State<HomePage> {
               ),
             ],
           ),
-          // Logo at the center
           Image.asset(
-            'assets/logo.png', // Your logo image path here
+            'assets/logo.png',
             height: 120,
           ),
-          // Avatar on the right side
           CircleAvatar(
             radius: 25,
             backgroundColor: Colors.yellowAccent,
-            child: Icon(Icons.person), // Placeholder for the avatar
+            child: Icon(Icons.person),
           ),
         ],
       ),
     );
   }
 
-
-  // Toggle button for switching between Month and Week views
   Widget _xayDungNutChuyenDoi() {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -131,7 +127,7 @@ class _HomePageState extends State<HomePage> {
               ),
               padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
               child: Text(
-                isWeekView ? 'Month' : 'Week', // Display the toggle option
+                isWeekView ? 'Month' : 'Week',
                 style: TextStyle(color: Colors.white, fontSize: 16),
               ),
             ),
@@ -141,21 +137,13 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-
-
-
-  // Build the calendar with styles
   Widget _xayDungLich() {
     return Column(
       children: [
-        TableCalendar(
+        CustomCalendar(
           focusedDay: _focusedDay,
-          firstDay: DateTime(2020),
-          lastDay: DateTime(2050),
+          selectedDay: _selectedDay,
           calendarFormat: _calendarFormat,
-          selectedDayPredicate: (day) {
-            return isSameDay(_selectedDay, day);
-          },
           onDaySelected: (selectedDay, focusedDay) {
             setState(() {
               _selectedDay = selectedDay;
@@ -169,57 +157,13 @@ class _HomePageState extends State<HomePage> {
               });
             }
           },
-          calendarStyle: CalendarStyle(
-            todayDecoration: BoxDecoration(
-              color: Colors.orangeAccent,
-              shape: BoxShape.circle,
-            ),
-            selectedDecoration: BoxDecoration(
-              color: Colors.greenAccent,
-              shape: BoxShape.circle,
-            ),
-            defaultDecoration: BoxDecoration(
-              color: Color(0xFFF8F1FF),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            outsideDecoration: BoxDecoration(
-              color: Color(0xFFF0E9F6),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            weekendDecoration: BoxDecoration(
-              color: Color(0xFFF8F1FF),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            weekendTextStyle: TextStyle(color: Colors.red),
-            defaultTextStyle: TextStyle(color: Colors.black),
-          ),
-          headerStyle: HeaderStyle(
-            formatButtonVisible: false,
-            titleCentered: true,
-            titleTextStyle: TextStyle(fontSize: 24, color: Color(0xFF7EBB42)),
-            leftChevronIcon: Icon(Icons.chevron_left, color: Color(0xFF7EBB42)),
-            rightChevronIcon: Icon(Icons.chevron_right, color: Color(0xFF7EBB42)),
-          ),
-          daysOfWeekStyle: DaysOfWeekStyle(
-            weekdayStyle: TextStyle(color: Colors.black),  // Màu chữ của ngày thường
-            weekendStyle: TextStyle(color: Colors.redAccent),  // Màu chữ của cuối tuần
-            dowTextFormatter: (date, locale) {
-              // Danh sách tên ngày tùy chỉnh (Sun, Mon, Tue,...)
-              List<String> dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-              return dayNames[date.weekday % 7];  // Lấy tên ngày từ danh sách
-            },
-          ),
-          daysOfWeekHeight: 40, // Chiều cao của hàng ngày trong tuần
         ),
         const SizedBox(height: 16),
-        _xayDungDanhSachCongViec(), // Add the task list here
+        _xayDungDanhSachCongViec(),
       ],
     );
   }
 
-
-
-// Build the task list for the selected day
   Widget _xayDungDanhSachCongViec() {
     List<String> congViecChoNgay = _layCongViecChoNgay(_selectedDay ?? DateTime.now());
 
@@ -239,13 +183,11 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-
-  // Bottom toolbar with icons
   Widget _xayDungThanhCongCuDuoi() {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.end,  // Đẩy xuống dưới
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -256,9 +198,7 @@ class _HomePageState extends State<HomePage> {
                   width: 54,
                   height: 54,
                 ),
-                onPressed: () {
-                  // Xử lý sự kiện khi nhấn nút
-                },
+                onPressed: () {},
               ),
               IconButton(
                 icon: Image.asset(
@@ -266,9 +206,7 @@ class _HomePageState extends State<HomePage> {
                   width: 54,
                   height: 54,
                 ),
-                onPressed: () {
-                  // Xử lý sự kiện khi nhấn nút
-                },
+                onPressed: () {},
               ),
               IconButton(
                 icon: Image.asset(
@@ -277,7 +215,14 @@ class _HomePageState extends State<HomePage> {
                   height: 54,
                 ),
                 onPressed: () {
-                  // Xử lý sự kiện khi nhấn nút
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => EventPage(
+                        selectedDate: DateTime.now(),
+                      ),
+                    ),
+                  );
                 },
               ),
               IconButton(
@@ -286,16 +231,12 @@ class _HomePageState extends State<HomePage> {
                   width: 54,
                   height: 54,
                 ),
-                onPressed: () {
-                  // Xử lý sự kiện khi nhấn nút
-                },
+                onPressed: () {},
               ),
               IconButton(
                 icon: Icon(Icons.settings, color: Colors.green),
-                iconSize: 50, // Tăng kích thước của nút cuối cùng
-                onPressed: () {
-                  // Xử lý sự kiện khi nhấn nút
-                },
+                iconSize: 50,
+                onPressed: () {},
               ),
             ],
           ),
@@ -303,6 +244,4 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-
-
 }
