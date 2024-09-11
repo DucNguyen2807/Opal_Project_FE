@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:opal_project/ui/customer-calendar/CustomCalendar.dart'; // Đường dẫn tới CustomCalendar của bạn
+import 'package:opal_project/ui/customer-calendar/CustomCalendar.dart';
 import 'dart:collection';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:opal_project/ui/EventPage/EventPage.dart';
+import 'package:opal_project/ui/ToDoListPage/ToDoListPage.dart';
+
 
 class HomePage extends StatefulWidget {
   @override
@@ -183,6 +185,8 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+
+
   Widget _xayDungThanhCongCuDuoi() {
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -206,7 +210,12 @@ class _HomePageState extends State<HomePage> {
                   width: 54,
                   height: 54,
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ToDoListPage()),
+                  );
+                },
               ),
               IconButton(
                 icon: Image.asset(
