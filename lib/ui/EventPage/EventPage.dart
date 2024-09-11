@@ -29,7 +29,7 @@ class _EventPageState extends State<EventPage> {
       backgroundColor: const Color(0xFFFCE6A4),
       appBar: AppBar(
         title: Text('Event Page'),
-        backgroundColor: Colors.yellowAccent,
+        backgroundColor: Colors.green,
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
@@ -63,7 +63,7 @@ class _EventPageState extends State<EventPage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.yellowAccent,
+        backgroundColor: Colors.green,
         child: Icon(Icons.add),
         onPressed: () {
           Navigator.push(
