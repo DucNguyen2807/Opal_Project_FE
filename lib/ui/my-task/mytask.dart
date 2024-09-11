@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../EventPage/EventPage.dart';
+import '../settings/settings.dart';
 
 class MytaskScreen extends StatefulWidget {
   const MytaskScreen({super.key});
@@ -114,14 +115,16 @@ class _MytaskScreenState extends State<MytaskScreen> {
                   ),
                   const SizedBox(),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Text(
                       'June 2',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ],
@@ -161,12 +164,15 @@ class _MytaskScreenState extends State<MytaskScreen> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: _taskCompletionStatus[index] ? Colors.green : Colors.grey),
+          border: Border.all(
+              color: _taskCompletionStatus[index] ? Colors.green : Colors.grey),
         ),
         child: Row(
           children: [
             Icon(
-              _taskCompletionStatus[index] ? Icons.check_box : Icons.check_box_outline_blank,
+              _taskCompletionStatus[index]
+                  ? Icons.check_box
+                  : Icons.check_box_outline_blank,
               color: Colors.green,
             ),
             const SizedBox(width: 8),
@@ -174,8 +180,11 @@ class _MytaskScreenState extends State<MytaskScreen> {
               child: Text(
                 title,
                 style: TextStyle(
-                  decoration: _taskCompletionStatus[index] ? TextDecoration.lineThrough : null,
-                  color: _taskCompletionStatus[index] ? Colors.grey : Colors.black,
+                  decoration: _taskCompletionStatus[index]
+                      ? TextDecoration.lineThrough
+                      : null,
+                  color:
+                      _taskCompletionStatus[index] ? Colors.grey : Colors.black,
                 ),
               ),
             ),
@@ -235,7 +244,14 @@ class _MytaskScreenState extends State<MytaskScreen> {
           IconButton(
             icon: Icon(Icons.settings, color: Colors.green),
             iconSize: 50,
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SettingsScreen(),
+                ),
+              );
+            },
           ),
         ],
       ),
