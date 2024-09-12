@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:opal_project/ui/landing/landing.dart'; // Giữ nguyên import của bạn
-import 'package:opal_project/ui/theme-provider/theme.dart'; // Thêm đường dẫn đến ThemeProvider
+import 'package:opal_project/ui/landing/landing.dart';
+import 'package:opal_project/ui/theme-provider/theme.dart';
 
 void main() => runApp(const OpalApp());
 
@@ -19,8 +19,13 @@ class OpalApp extends StatelessWidget {
             theme: ThemeData(
               brightness: themeProvider.isDarkMode ? Brightness.dark : Brightness.light,
               primarySwatch: Colors.green,
+              scaffoldBackgroundColor: const Color(0xFFF5EAC9), // Màu nền mặc định
+              appBarTheme: AppBarTheme(
+                backgroundColor: themeProvider.isDarkMode ? Colors.grey[850] : const Color(0xFFF5EAC9),
+                elevation: 0,
+              ),
             ),
-            home: const OpalLandingScreen(),
+            home: const OpalLandingScreen(), // Giả sử LandingScreen là trang chính của bạn
           );
         },
       ),
