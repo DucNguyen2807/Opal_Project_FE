@@ -33,7 +33,7 @@ class _EventPageState extends State<EventPage> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(context); // Quay lại trang trước
+            Navigator.pop(context);
           },
         ),
       ),
@@ -58,7 +58,7 @@ class _EventPageState extends State<EventPage> {
               },
             ),
             const SizedBox(height: 16),
-            _xayDungDanhSachCongViec(), // Danh sách công việc theo ngày
+            _xayDungDanhSachCongViec(),
           ],
         ),
       ),
@@ -77,7 +77,7 @@ class _EventPageState extends State<EventPage> {
     );
   }
 
-  // Xây dựng danh sách công việc
+
   Widget _xayDungDanhSachCongViec() {
     return Text('Danh sách công việc cho ngày được chọn');
   }

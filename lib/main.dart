@@ -19,13 +19,13 @@ class OpalApp extends StatelessWidget {
             theme: ThemeData(
               brightness: themeProvider.isDarkMode ? Brightness.dark : Brightness.light,
               primarySwatch: Colors.green,
-              scaffoldBackgroundColor: const Color(0xFFF5EAC9), // Màu nền mặc định
+              scaffoldBackgroundColor: const Color(0xFFFFF1AD),
               appBarTheme: AppBarTheme(
                 backgroundColor: themeProvider.isDarkMode ? Colors.grey[850] : const Color(0xFFF5EAC9),
                 elevation: 0,
               ),
             ),
-            home: const OpalLandingScreen(), // Giả sử LandingScreen là trang chính của bạn
+            home: const OpalLandingScreen(),
           );
         },
       ),

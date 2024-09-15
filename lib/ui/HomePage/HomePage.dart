@@ -3,9 +3,9 @@ import 'package:opal_project/ui/customer-calendar/CustomCalendar.dart';
 import 'dart:collection';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:opal_project/ui/EventPage/EventPage.dart';
-import 'package:opal_project/ui/ToDoListPage/ToDoListPage.dart';
-
 import 'package:opal_project/ui/my-task/mytask.dart';
+import 'package:opal_project/ui/settings/settings.dart';
+import 'package:opal_project/ui/CustomBottomBar/CustomBottomBar.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -26,7 +26,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -34,9 +34,33 @@ class _HomePageState extends State<HomePage> {
             _xayDungNutChuyenDoi(),
             _xayDungLich(),
             const SizedBox(height: 8),
-            _xayDungThanhCongCuDuoi(),
           ],
         ),
+      ),
+      bottomNavigationBar: CustomBottomBar(
+        onFirstButtonPressed: () {
+          // Handle first button press
+        },
+        onSecondButtonPressed: () {
+          // Handle second button press
+        },
+        onEventButtonPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => EventPage(selectedDate: _selectedDay ?? DateTime.now()), // Truyền selectedDate
+            ),
+          );
+        },
+        onFourthButtonPressed: () {
+          // Handle fourth button press
+        },
+        onSettingsButtonPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => SettingsScreen()),
+          );
+        },
       ),
     );
   }
@@ -191,75 +215,6 @@ class _HomePageState extends State<HomePage> {
           leading: Icon(Icons.task_alt),
         );
       },
-    );
-  }
-
-
-
-  Widget _xayDungThanhCongCuDuoi() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              IconButton(
-                icon: Image.asset(
-                  'assets/icon opal-01.png',
-                  width: 54,
-                  height: 54,
-                ),
-                onPressed: () {},
-              ),
-              IconButton(
-                icon: Image.asset(
-                  'assets/icon opal-07.png',
-                  width: 54,
-                  height: 54,
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => ToDoListPage()),
-                  );
-                },
-              ),
-              IconButton(
-                icon: Image.asset(
-                  'assets/icon opal-08.png',
-                  width: 54,
-                  height: 54,
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => EventPage(
-                        selectedDate: DateTime.now(),
-                      ),
-                    ),
-                  );
-                },
-              ),
-              IconButton(
-                icon: Image.asset(
-                  'assets/icon opal-09.png',
-                  width: 54,
-                  height: 54,
-                ),
-                onPressed: () {},
-              ),
-              IconButton(
-                icon: Icon(Icons.settings, color: Colors.green),
-                iconSize: 50,
-                onPressed: () {},
-              ),
-            ],
-          ),
-        ],
-      ),
     );
   }
 }

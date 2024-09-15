@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../CustomBottomBar/CustomBottomBar.dart';
 import '../EventPage/EventPage.dart';
 import '../settings/settings.dart';
 
@@ -15,7 +16,7 @@ class _MytaskScreenState extends State<MytaskScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5EAC9),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -144,10 +145,32 @@ class _MytaskScreenState extends State<MytaskScreen> {
               ],
             ),
             const SizedBox(height: 20),
-            _xayDungThanhCongCuDuoi(context),
           ],
         ),
       ),
+    bottomNavigationBar: CustomBottomBar(
+      onFirstButtonPressed: () {
+        // Handle first button press
+      },
+      onSecondButtonPressed: () {
+        // Handle second button press
+      },
+      onEventButtonPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => EventPage(selectedDate: DateTime.now())),
+        );
+      },
+      onFourthButtonPressed: () {
+        // Handle fourth button press
+      },
+      onSettingsButtonPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => SettingsScreen()),
+        );
+      },
+    ),
     );
   }
 
@@ -190,70 +213,6 @@ class _MytaskScreenState extends State<MytaskScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _xayDungThanhCongCuDuoi(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          IconButton(
-            icon: Image.asset(
-              'assets/icon opal-01.png',
-              width: 54,
-              height: 54,
-            ),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: Image.asset(
-              'assets/icon opal-07.png',
-              width: 54,
-              height: 54,
-            ),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: Image.asset(
-              'assets/icon opal-08.png',
-              width: 54,
-              height: 54,
-            ),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => EventPage(
-                    selectedDate: DateTime.now(),
-                  ),
-                ),
-              );
-            },
-          ),
-          IconButton(
-            icon: Image.asset(
-              'assets/icon opal-09.png',
-              width: 54,
-              height: 54,
-            ),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: Icon(Icons.settings, color: Colors.green),
-            iconSize: 50,
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => SettingsScreen(),
-                ),
-              );
-            },
-          ),
-        ],
       ),
     );
   }
