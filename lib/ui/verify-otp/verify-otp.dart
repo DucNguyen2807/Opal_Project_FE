@@ -43,7 +43,7 @@ class _OpalVerificationScreenState extends State<OpalVerificationScreen> {
                   backgroundColor: Colors.white,
                   child: ClipOval(
                     child: Image.asset(
-                      'assets/bird.png',
+                      'assets/icon opal-05.png',
                       fit: BoxFit.cover,
                       width: 120,
                       height: 120,
