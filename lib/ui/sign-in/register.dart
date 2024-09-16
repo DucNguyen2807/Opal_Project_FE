@@ -1,13 +1,66 @@
 import 'package:flutter/material.dart';
 import 'package:opal_project/ui/sign-in/login.dart';
+import '../../services/UserService/AuthService.dart';
 
-class OpalRegisterScreen extends StatelessWidget {
+class OpalRegisterScreen extends StatefulWidget {
   const OpalRegisterScreen({super.key});
+
+  @override
+  State<OpalRegisterScreen> createState() => _OpalRegisterScreenState();
+}
+
+class _OpalRegisterScreenState extends State<OpalRegisterScreen> {
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final AuthService _authService = AuthService();
+
+  bool _isLoading = false;
+  String? _errorMessage;
+
+  Future<void> _register() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final response = await _authService.register(
+        _usernameController.text,
+        _passwordController.text,
+      );
+
+      print('Response Status: ${response['status']}');
+      print('Response Message: ${response['message']}');
+
+      if (response['status'] == 'success') {
+        print('Navigating to login screen...');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const OpalLoginScreen()),
+        );
+      } else {
+        setState(() {
+          _errorMessage = response['message'] ?? 'Đăng ký thất bại!';
+        });
+      }
+    } catch (e, stackTrace) {
+      print('Registration error: $e');
+      print('Stack trace: $stackTrace');
+      setState(() {
+        _errorMessage = 'Đã có lỗi xảy ra. Vui lòng thử lại.';
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFFEAC9), // Màu nền
+      backgroundColor: const Color(0xFFFFEAC9),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
@@ -26,7 +79,6 @@ class OpalRegisterScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                // Hình ảnh
                 Align(
                   alignment: Alignment.topCenter,
                   child: Image.asset(
@@ -47,10 +99,38 @@ class OpalRegisterScreen extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 20),
-                _buildTextField('Tên tài khoản'),
+                _buildTextField('Tên tài khoản', _usernameController),
                 const SizedBox(height: 16),
-                _buildTextField('Mật khẩu', obscureText: true),
+                _buildTextField('Mật khẩu', _passwordController, obscureText: true),
                 const SizedBox(height: 16),
+
+                if (_errorMessage != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 16.0),
+                    child: Text(
+                      _errorMessage!,
+                      style: const TextStyle(color: Colors.red),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+
+                ElevatedButton(
+                  onPressed: _isLoading ? null : _register,
+                  child: _isLoading
+                      ? const CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  )
+                      : const Text('Đăng ký'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFFFA770),
+                    padding: const EdgeInsets.symmetric(vertical: 16.0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0),
                   child: Row(
@@ -73,20 +153,6 @@ class OpalRegisterScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () {
-                    // Xử lý đăng ký
-                  },
-                  child: const Text('Đăng ký'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFFA770),
-                    padding: const EdgeInsets.symmetric(vertical: 16.0),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
                 const Text(
                   'Bằng việc tiếp tục bạn đồng ý với',
                   textAlign: TextAlign.center,
@@ -98,7 +164,7 @@ class OpalRegisterScreen extends StatelessWidget {
                   },
                   child: const Text('Term and Privacy Policy'),
                   style: TextButton.styleFrom(
-                    foregroundColor: Color(0xFF5C9E31),
+                    foregroundColor: const Color(0xFF5C9E31),
                   ),
                 ),
               ],
@@ -109,7 +175,7 @@ class OpalRegisterScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTextField(String label, {bool obscureText = false}) {
+  Widget _buildTextField(String label, TextEditingController controller, {bool obscureText = false}) {
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFFFFCBA0),
@@ -124,6 +190,7 @@ class OpalRegisterScreen extends StatelessWidget {
         ],
       ),
       child: TextField(
+        controller: controller,
         obscureText: obscureText,
         decoration: InputDecoration(
           labelText: label,

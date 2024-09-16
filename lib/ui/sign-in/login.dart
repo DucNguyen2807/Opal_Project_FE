@@ -1,9 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:opal_project/ui/forgot-password/forgot-password.dart';
 import 'package:opal_project/ui/HomePage/HomePage.dart';
+import 'package:opal_project/services/UserService/AuthService.dart';
 
-class OpalLoginScreen extends StatelessWidget {
+class OpalLoginScreen extends StatefulWidget {
   const OpalLoginScreen({super.key});
+
+  @override
+  _OpalLoginScreenState createState() => _OpalLoginScreenState();
+}
+
+class _OpalLoginScreenState extends State<OpalLoginScreen> {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final AuthService _authService = AuthService();
+
+  Future<void> _login() async {
+    try {
+      final response = await _authService.login(
+        emailController.text,
+        passwordController.text,
+      );
+      if (response.containsKey('token')) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomePage()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Invalid login')),
+        );
+      }
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error.toString())),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,9 +116,7 @@ class OpalLoginScreen extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
                   child: TextButton(
-                    onPressed: () {
-
-                    },
+                    onPressed: () {},
                     style: TextButton.styleFrom(
                       foregroundColor: const Color(0xFF5C9E31),
                     ),
@@ -106,8 +137,9 @@ class OpalLoginScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  child: const TextField(
-                    decoration: InputDecoration(
+                  child: TextField(
+                    controller: emailController,
+                    decoration: const InputDecoration(
                       labelText: 'Tên tài khoản',
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -128,9 +160,10 @@ class OpalLoginScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  child: const TextField(
+                  child: TextField(
+                    controller: passwordController,
                     obscureText: true,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Mật khẩu',
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -155,17 +188,8 @@ class OpalLoginScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-
-                SizedBox(height: 16),
-
                 ElevatedButton(
-                  onPressed: () {
-                    // Thay thế trang hiện tại bằng HomePage
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => HomePage()),
-                    );
-                  },
+                  onPressed: _login,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFFFA770),
                     padding: const EdgeInsets.symmetric(vertical: 16.0),

@@ -1,9 +1,23 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:opal_project/ui/landing/landing.dart';
 import 'package:opal_project/ui/theme-provider/theme.dart';
 
-void main() => runApp(const OpalApp());
+// Custom HttpOverrides to bypass SSL certificate validation
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+  }
+}
+
+// Set global HttpOverrides
+void main() {
+  HttpOverrides.global = MyHttpOverrides();
+  runApp(const OpalApp());
+}
 
 class OpalApp extends StatelessWidget {
   const OpalApp({Key? key}) : super(key: key);
