@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:opal_project/services/UserService/AuthService.dart';
+import '../reset-password/reset-pass.dart';
 import 'package:flutter_countdown_timer/flutter_countdown_timer.dart';
 
-import '../reset-password/reset-pass.dart';
-
 class OpalVerificationScreen extends StatefulWidget {
-  const OpalVerificationScreen({super.key});
+  final String email;
+  const OpalVerificationScreen({super.key, required this.email});
 
   @override
   _OpalVerificationScreenState createState() => _OpalVerificationScreenState();
@@ -12,6 +13,8 @@ class OpalVerificationScreen extends StatefulWidget {
 
 class _OpalVerificationScreenState extends State<OpalVerificationScreen> {
   late int endTime;
+  final TextEditingController otpController = TextEditingController();
+  final AuthService _authService = AuthService();
 
   @override
   void initState() {
@@ -19,10 +22,45 @@ class _OpalVerificationScreenState extends State<OpalVerificationScreen> {
     endTime = DateTime.now().millisecondsSinceEpoch + 600 * 1000;
   }
 
-  void _onConfirm() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const ResetPasswordScreen()),
+  void _onConfirm() async {
+    String otp = otpController.text.trim();
+    if (otp.isNotEmpty) {
+      try {
+        var response = await _authService.verifyOTP(widget.email, otp);
+        if (response['status'] == 'success') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ResetPasswordScreen(email: widget.email),
+            ),
+          );
+        } else {
+          // Hiển thị thông báo lỗi
+          _showErrorDialog('Xác minh OTP không thành công');
+        }
+      } catch (error) {
+        _showErrorDialog('Đã xảy ra lỗi. Vui lòng thử lại.');
+      }
+    } else {
+      _showErrorDialog('Vui lòng nhập mã OTP');
+    }
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Lỗi'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -52,7 +90,7 @@ class _OpalVerificationScreenState extends State<OpalVerificationScreen> {
                 ),
                 const SizedBox(height: 20),
                 const Text(
-                  'Kiểm tra điện thoại của bạn',
+                  'Kiểm tra Email của bạn',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -60,46 +98,22 @@ class _OpalVerificationScreenState extends State<OpalVerificationScreen> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                const Text(
-                  'Chúng tôi đã gửi mã xác nhận đến điện thoại của bạn',
+                Text(
+                  'Chúng tôi đã gửi mã xác nhận đến Email của bạn: ${widget.email}',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 16,
                     color: Colors.black54,
                   ),
                 ),
                 const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(4, (index) {
-                    return Container(
-                      width: 60,
-                      margin: const EdgeInsets.symmetric(horizontal: 5),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.circular(8),
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.5),
-                            spreadRadius: 2,
-                            blurRadius: 5,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      child: TextField(
-                        textAlign: TextAlign.center,
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(vertical: 15),
-                          counterText: '',
-                        ),
-                        keyboardType: TextInputType.number,
-                        maxLength: 1,
-                      ),
-                    );
-                  }),
+                TextField(
+                  controller: otpController,
+                  decoration: const InputDecoration(
+                    labelText: 'Nhập mã OTP',
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.number,
                 ),
                 const SizedBox(height: 20),
                 CountdownTimer(
@@ -135,7 +149,7 @@ class _OpalVerificationScreenState extends State<OpalVerificationScreen> {
                 const SizedBox(height: 10),
                 TextButton(
                   onPressed: () {
-                    // Xử lý gửi lại mã
+                    // Xử lý gửi lại mã OTP
                   },
                   style: TextButton.styleFrom(
                     foregroundColor: const Color(0xFF5C9E31),

@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import '../verify-otp/verify-otp.dart';
+import 'package:opal_project/services/UserService/AuthService.dart';
 
 class OpalForgotPasswordScreen extends StatelessWidget {
   const OpalForgotPasswordScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final TextEditingController emailController = TextEditingController();
+    final AuthService authService = AuthService();
+
     return Scaffold(
       backgroundColor: const Color(0xFFFFEAC9),
       body: SafeArea(
@@ -35,7 +39,7 @@ class OpalForgotPasswordScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 const Text(
-                  'Bạn hãy nhập số điện thoại để\nchúng tôi gửi mã xác nhận!',
+                  'Bạn hãy nhập Email để\nchúng tôi gửi mã xác nhận!',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 16,
@@ -43,17 +47,32 @@ class OpalForgotPasswordScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
-                _buildTextField('Số điện thoại'),
+                _buildTextField('Email', emailController),
                 const SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const OpalVerificationScreen(),
-                      ),
-                    );
-
+                  onPressed: () async {
+                    if (emailController.text.isNotEmpty) {
+                      try {
+                        // Gọi API gửi OTP
+                        final response = await authService.sendOTP(emailController.text);
+                        if (response['status'] == 'success') {
+                          // Điều hướng đến trang xác thực khi thành công
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => OpalVerificationScreen(
+                                email: emailController.text,
+                              ),
+                            ),
+                          );
+                        } else {
+                          // Xử lý lỗi (ví dụ: hiển thị thông báo cho người dùng)
+                          print('Gửi OTP thất bại: ${response['message']}');
+                        }
+                      } catch (e) {
+                        print('Lỗi khi gửi OTP: $e');
+                      }
+                    }
                   },
                   child: const Text('Xác nhận'),
                   style: ElevatedButton.styleFrom(
@@ -64,6 +83,7 @@ class OpalForgotPasswordScreen extends StatelessWidget {
                     ),
                   ),
                 ),
+
                 const SizedBox(height: 16),
                 TextButton(
                   onPressed: () {
@@ -82,7 +102,7 @@ class OpalForgotPasswordScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTextField(String label) {
+  Widget _buildTextField(String label, TextEditingController controller) {
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFFFFCBA0),
@@ -97,7 +117,8 @@ class OpalForgotPasswordScreen extends StatelessWidget {
         ],
       ),
       child: TextField(
-        keyboardType: TextInputType.phone,
+        controller: controller,
+        keyboardType: TextInputType.emailAddress,
         decoration: InputDecoration(
           labelText: label,
           border: InputBorder.none,

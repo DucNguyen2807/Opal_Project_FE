@@ -15,10 +15,11 @@ class BaseApiService {
       body: jsonEncode(data),
     );
 
-    print('Response Status: ${response.statusCode}');
-    print('Response Body: ${response.body}');
-
     if (response.statusCode == 200) {
+      if (response.body.isEmpty) {
+        return {'status': 'success'};
+      }
+
       try {
         return jsonDecode(response.body);
       } catch (e) {
