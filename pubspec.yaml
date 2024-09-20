@@ -75,12 +75,16 @@ flutter:
   assets:
     - assets/logo.png
     - assets/bird.png
+    - assets/bird1.png
     - assets/login-opal.png
     - assets/icon opal-01.png
     - assets/icon opal-05.png
     - assets/icon opal-07.png
     - assets/icon opal-08.png
     - assets/icon opal-09.png
+    - assets/background.png
+    - assets/Artboard 20.png
+    - assets/Artboard 21.png
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

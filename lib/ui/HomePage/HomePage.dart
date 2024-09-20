@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:opal_project/ui/FeedBird/FeedBird.dart';
 import 'package:opal_project/ui/customer-calendar/CustomCalendar.dart';
 import 'dart:collection';
 import 'package:table_calendar/table_calendar.dart';
@@ -6,6 +7,8 @@ import 'package:opal_project/ui/EventPage/EventPage.dart';
 import 'package:opal_project/ui/my-task/mytask.dart';
 import 'package:opal_project/ui/settings/settings.dart';
 import 'package:opal_project/ui/CustomBottomBar/CustomBottomBar.dart';
+
+import '../ToDoListPage/ToDoListPage.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -42,7 +45,10 @@ class _HomePageState extends State<HomePage> {
           // Handle first button press
         },
         onSecondButtonPressed: () {
-          // Handle second button press
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ToDoListPage()),
+          );
         },
         onEventButtonPressed: () {
           Navigator.push(
@@ -53,7 +59,12 @@ class _HomePageState extends State<HomePage> {
           );
         },
         onFourthButtonPressed: () {
-          // Handle fourth button press
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => FeedBird(), // Truyền selectedDate
+            ),
+          );
         },
         onSettingsButtonPressed: () {
           Navigator.push(

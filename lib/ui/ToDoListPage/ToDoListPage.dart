@@ -5,6 +5,8 @@ import 'dart:collection';
 import 'package:table_calendar/table_calendar.dart';
 
 class ToDoListPage extends StatefulWidget {
+
+
   @override
   _ToDoListPageState createState() => _ToDoListPageState();
 }
@@ -26,7 +28,7 @@ class _ToDoListPageState extends State<ToDoListPage> {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text('To Do List'),
-        backgroundColor: Colors.green,
+        backgroundColor: Colors.greenAccent,
       ),
       body: SafeArea(
         child: Column(

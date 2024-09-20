@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import '../EventPage/EventPage.dart';
-import '../settings/settings.dart';
-
 class CustomBottomBar extends StatelessWidget {
   final Function() onFirstButtonPressed;
   final Function() onSecondButtonPressed;
@@ -57,6 +54,7 @@ class CustomBottomBar extends StatelessWidget {
             ),
             onPressed: onFourthButtonPressed,
           ),
+
           IconButton(
             icon: Icon(Icons.settings, color: Colors.green),
             iconSize: 50,

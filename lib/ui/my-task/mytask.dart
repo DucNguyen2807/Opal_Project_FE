@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../CustomBottomBar/CustomBottomBar.dart';
 import '../EventPage/EventPage.dart';
+import '../FeedBird/FeedBird.dart';
+import '../ToDoListPage/ToDoListPage.dart';
 import '../settings/settings.dart';
 
 class MytaskScreen extends StatefulWidget {
@@ -153,7 +155,10 @@ class _MytaskScreenState extends State<MytaskScreen> {
         // Handle first button press
       },
       onSecondButtonPressed: () {
-        // Handle second button press
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ToDoListPage()),
+        );
       },
       onEventButtonPressed: () {
         Navigator.push(
@@ -162,7 +167,12 @@ class _MytaskScreenState extends State<MytaskScreen> {
         );
       },
       onFourthButtonPressed: () {
-        // Handle fourth button press
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => FeedBird(), // Truyền selectedDate
+          ),
+        );
       },
       onSettingsButtonPressed: () {
         Navigator.push(

@@ -29,7 +29,7 @@ class _EventPageState extends State<EventPage> {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text('Event Page'),
-        backgroundColor: Colors.green,
+        backgroundColor: Colors.greenAccent,
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
