@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:opal_project/ui/theme-provider/theme.dart';
 import 'package:opal_project/ui/sign-in/login.dart';
 
+import '../user-profile/user-profile.dart';
+
 class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -26,27 +28,35 @@ class SettingsScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                CircleAvatar(
-                  radius: 50,
-                  backgroundColor: Colors.transparent,
-                  backgroundImage: AssetImage('assets/login-opal.png'),
-                ),
-                SizedBox(width: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Opal',
-                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                    ),
-                    Text('Personal information', style: TextStyle(color: Colors.grey, fontSize: 16)),
-                  ],
-                ),
-                Spacer(),
-                Icon(Icons.arrow_forward_ios, color: Colors.grey),
-              ],
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => UserProfileScreen()),
+                );
+              },
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 50,
+                    backgroundColor: Colors.transparent,
+                    backgroundImage: AssetImage('assets/login-opal.png'),
+                  ),
+                  SizedBox(width: 16),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Opal',
+                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                      ),
+                      Text('Personal information', style: TextStyle(color: Colors.grey, fontSize: 16)),
+                    ],
+                  ),
+                  Spacer(),
+                  Icon(Icons.arrow_forward_ios, color: Colors.grey),
+                ],
+              ),
             ),
             SizedBox(height: 20),
             Text('Setting', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
