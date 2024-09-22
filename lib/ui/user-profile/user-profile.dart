@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 
-class UserProfileScreen extends StatelessWidget {
+class UserProfileScreen extends StatefulWidget {
   const UserProfileScreen({super.key});
+
+  @override
+  _UserProfileScreenState createState() => _UserProfileScreenState();
+}
+
+class _UserProfileScreenState extends State<UserProfileScreen> {
+  String? _selectedGender;
 
   @override
   Widget build(BuildContext context) {
@@ -53,27 +60,12 @@ class UserProfileScreen extends StatelessWidget {
             buildTextField('Email'),
             const SizedBox(height: 15),
 
-            buildLabel('Sinh nhật:'),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Expanded(child: buildDropdown('Ngày')),
-                const SizedBox(width: 15),
-                Expanded(child: buildDropdown('Tháng')),
-                const SizedBox(width: 15),
-                Expanded(child: buildDropdown('Năm')),
-              ],
-            ),
+            buildLabel('Giới tính:'),
+            buildGenderDropdown(),
             const SizedBox(height: 15),
 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Expanded(child: buildDropdown('Giới tính')),
-                const SizedBox(width: 15),
-                Expanded(child: buildDropdown('Quốc tịch')),
-              ],
-            ),
+            buildLabel('Số điện thoại:'),
+            buildTextField('Số điện thoại'),
             const SizedBox(height: 30),
 
             ElevatedButton(
@@ -131,28 +123,35 @@ class UserProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget buildDropdown(String hintText) {
-    return Container(
+  Widget buildGenderDropdown() {
+    return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFAA7B),
-        borderRadius: BorderRadius.circular(30),
-      ),
-      child: DropdownButton<String>(
-        underline: const SizedBox(),
-        isExpanded: true,
-        hint: Text(
-          hintText,
-          style: const TextStyle(color: Colors.black54),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFFAA7B),
+          borderRadius: BorderRadius.circular(30),
         ),
-        items: ['Option 1', 'Option 2', 'Option 3']
-            .map((String value) {
-          return DropdownMenuItem<String>(
-            value: value,
-            child: Text(value),
-          );
-        }).toList(),
-        onChanged: (newValue) {},
+        child: DropdownButton<String>(
+          value: _selectedGender,
+          isExpanded: true,
+          underline: const SizedBox(),
+          hint: const Text(
+            'Chọn giới tính',
+            style: TextStyle(color: Colors.black54),
+          ),
+          items: ['Nam', 'Nữ', 'Khác'].map((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(value),
+            );
+          }).toList(),
+          onChanged: (newValue) {
+            setState(() {
+              _selectedGender = newValue;
+            });
+          },
+        ),
       ),
     );
   }
