@@ -6,5 +6,6 @@ class Config {
   static const String sendOTPEndpoint = 'OTP/send';
   static const String verifyOTPEndpoint = 'OTP/verify';
   static const String resetPasswordEndpoint = 'User/password/reset';
+  static const String taskByDateEndPoint = 'Task/get-task-by-date';
 
 }

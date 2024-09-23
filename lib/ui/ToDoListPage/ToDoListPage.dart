@@ -1,22 +1,55 @@
+import 'package:opal_project/services/Config/config.dart';
 import 'package:flutter/material.dart';
 import 'package:opal_project/ui/customer-calendar/CustomCalendar.dart';
 import 'package:opal_project/ui/ToDoList/ToDoListWeek.dart';
 import 'dart:collection';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:opal_project/services/TaskService/TaskService.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ToDoListPage extends StatefulWidget {
-
-
   @override
   _ToDoListPageState createState() => _ToDoListPageState();
 }
 
 class _ToDoListPageState extends State<ToDoListPage> {
-  // Chỉ sử dụng CalendarFormat.week
   CalendarFormat _calendarFormat = CalendarFormat.week;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
   LinkedHashMap<DateTime, List<String>> _events = LinkedHashMap();
+  late TaskService _taskService;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _taskService = TaskService(Config.baseUrl);
+    _loadTasksForSelectedDay();
+  }
+
+  Future<void> _loadTasksForSelectedDay() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token') ?? '';
+
+      if (token.isNotEmpty && _selectedDay != null) {
+        final tasks = await _taskService.getTasksByDate(_selectedDay!, token);
+        setState(() {
+          _events[_selectedDay!] = tasks.map<String>((task) => task['title'].toString()).toList();
+        });
+      }
+    } catch (e) {
+      print('Error fetching tasks: $e');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   List<String> _layCongViecChoNgay(DateTime day) {
     return _events[day] ?? [];
@@ -35,7 +68,7 @@ class _ToDoListPageState extends State<ToDoListPage> {
           children: [
             _xayDungLich(),
             const SizedBox(height: 16),
-            Expanded(child: _xayDungDanhSachCongViec()),
+            Expanded(child: _isLoading ? Center(child: CircularProgressIndicator()) : _xayDungDanhSachCongViec()),
             _xayDungThanhCongCuDuoi(),
           ],
         ),
@@ -53,9 +86,9 @@ class _ToDoListPageState extends State<ToDoListPage> {
           _selectedDay = selectedDay;
           _focusedDay = focusedDay;
         });
+        _loadTasksForSelectedDay();
       },
       onFormatChanged: (format) {
-        // Không cần xử lý khi định dạng lịch không thay đổi vì chỉ sử dụng tuần
       },
     );
   }
