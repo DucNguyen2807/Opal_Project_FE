@@ -1,7 +1,7 @@
 import 'package:opal_project/services/Config/config.dart';
 import 'package:flutter/material.dart';
 import 'package:opal_project/ui/customer-calendar/CustomCalendar.dart';
-import 'package:opal_project/ui/ToDoList/ToDoListWeek.dart';
+import 'package:opal_project/ui/ToDoListOfTask/ToDoListOfTask.dart';
 import 'dart:collection';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:opal_project/services/TaskService/TaskService.dart';
@@ -16,14 +16,19 @@ class _ToDoListPageState extends State<ToDoListPage> {
   CalendarFormat _calendarFormat = CalendarFormat.week;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
-  LinkedHashMap<DateTime, List<String>> _events = LinkedHashMap();
+  LinkedHashMap<DateTime, List<Map<String, dynamic>>> _events = LinkedHashMap();
   late TaskService _taskService;
   bool _isLoading = false;
+
+  // Màu đồng bộ
+  final Color primaryColor = Colors.green;
+  final Color secondaryColor = Colors.orangeAccent;
+  final Color completedTaskColor = Color(0xFFFCE4EC);
 
   @override
   void initState() {
     super.initState();
-    _taskService = TaskService(Config.baseUrl);
+    _taskService = TaskService();
     _loadTasksForSelectedDay();
   }
 
@@ -39,7 +44,7 @@ class _ToDoListPageState extends State<ToDoListPage> {
       if (token.isNotEmpty && _selectedDay != null) {
         final tasks = await _taskService.getTasksByDate(_selectedDay!, token);
         setState(() {
-          _events[_selectedDay!] = tasks.map<String>((task) => task['title'].toString()).toList();
+          _events[_selectedDay!] = tasks;
         });
       }
     } catch (e) {
@@ -51,7 +56,7 @@ class _ToDoListPageState extends State<ToDoListPage> {
     }
   }
 
-  List<String> _layCongViecChoNgay(DateTime day) {
+  List<Map<String, dynamic>> _layCongViecChoNgay(DateTime day) {
     return _events[day] ?? [];
   }
 
@@ -61,7 +66,7 @@ class _ToDoListPageState extends State<ToDoListPage> {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text('To Do List'),
-        backgroundColor: Colors.greenAccent,
+        backgroundColor: primaryColor, // Sử dụng màu chính
       ),
       body: SafeArea(
         child: Column(
@@ -88,13 +93,12 @@ class _ToDoListPageState extends State<ToDoListPage> {
         });
         _loadTasksForSelectedDay();
       },
-      onFormatChanged: (format) {
-      },
+      onFormatChanged: (format) {},
     );
   }
 
   Widget _xayDungDanhSachCongViec() {
-    List<String> congViecChoNgay = _layCongViecChoNgay(_selectedDay ?? DateTime.now());
+    List<Map<String, dynamic>> congViecChoNgay = _layCongViecChoNgay(_selectedDay ?? DateTime.now());
 
     if (congViecChoNgay.isEmpty) {
       return Center(child: Text('Không có công việc cho ngày này.'));
@@ -103,9 +107,96 @@ class _ToDoListPageState extends State<ToDoListPage> {
     return ListView.builder(
       itemCount: congViecChoNgay.length,
       itemBuilder: (context, index) {
-        return ListTile(
-          title: Text(congViecChoNgay[index]),
-          leading: Icon(Icons.task_alt),
+        final task = congViecChoNgay[index];
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+          child: Row(
+            children: [
+              Column(
+                children: [
+                  Text(
+                    task['time'],
+                    style: TextStyle(
+                      color: secondaryColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 22,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(width: 16),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.all(12.0),
+                  decoration: BoxDecoration(
+                    color: task['isCompleted'] ? completedTaskColor : Colors.white,
+                    borderRadius: BorderRadius.circular(15),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.2),
+                        blurRadius: 6,
+                        spreadRadius: 2,
+                      ),
+                    ],
+                    border: Border(
+                      left: BorderSide(
+                        color: secondaryColor,
+                        width: 5,
+                      ),
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        task['title'],
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                          fontSize: 16,
+                        ),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        task['description'],
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              IconButton(
+                  icon: task['isCompleted']
+                      ? Icon(Icons.check_circle, color: Colors.greenAccent, size: 28)
+                      : Icon(Icons.radio_button_unchecked, color: secondaryColor, size: 28),
+                  onPressed: () async {
+                    if (task['taskId'] != null && task['taskId'] is String) {
+                      try {
+                        final prefs = await SharedPreferences.getInstance();
+                        final token = prefs.getString('token') ?? '';
+                        if (token.isNotEmpty) {
+                          bool success = await _taskService.toggleTaskCompletion(task['taskId'], token);
+
+                          if (success) {
+                            setState(() {
+                              task['isCompleted'] = !task['isCompleted'];
+                            });
+                          }
+                        }
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Failed to update task status.')));
+                      }
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Task ID is not available.')));
+                    }
+                  }),
+            ],
+          ),
         );
       },
     );
@@ -123,18 +214,16 @@ class _ToDoListPageState extends State<ToDoListPage> {
               width: 54,
               height: 54,
             ),
-            onPressed: () {
-              // Hành động khi nhấn nút
-            },
+            onPressed: () {},
           ),
           IconButton(
-            icon: Icon(Icons.add_circle, color: Colors.green),
-            iconSize: 50,
+            icon: Icon(Icons.add_circle, color: primaryColor), // Sử dụng màu chính
+            iconSize: 80,
             onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => AddNewTaskPage(
+                  builder: (context) => AddNewTaskPage1(
                     selectedDate: _selectedDay ?? DateTime.now(),
                   ),
                 ),
@@ -147,9 +236,7 @@ class _ToDoListPageState extends State<ToDoListPage> {
               width: 54,
               height: 54,
             ),
-            onPressed: () {
-              // Hành động khi nhấn nút
-            },
+            onPressed: () {},
           ),
         ],
       ),

@@ -1,25 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:opal_project/services/TaskService/TaskService.dart';
+import 'package:opal_project/model/TaskCreateRequestModel.dart';
 
-class AddNewTaskPage extends StatefulWidget {
+class AddNewTaskPage1 extends StatefulWidget {
   final DateTime selectedDate;
 
-  AddNewTaskPage({required this.selectedDate});
+  AddNewTaskPage1({required this.selectedDate});
 
   @override
-  _AddNewTaskPageState createState() => _AddNewTaskPageState();
+  _AddNewTaskPageState1 createState() => _AddNewTaskPageState1();
 }
 
-class _AddNewTaskPageState extends State<AddNewTaskPage> {
+class _AddNewTaskPageState1 extends State<AddNewTaskPage1> {
   final _formKey = GlobalKey<FormState>();
   TextEditingController _titleController = TextEditingController();
   TextEditingController _descriptionController = TextEditingController();
   DateTime _dueDate = DateTime.now();
-  TimeOfDay _startTime = TimeOfDay(hour: 9, minute: 0);
-  TimeOfDay _endTime = TimeOfDay(hour: 17, minute: 0);
+  TimeOfDay _time = TimeOfDay(hour: 9, minute: 0);
   String? _level;
+  TaskService _taskService = TaskService(); // Tạo đối tượng TaskService
 
-  // Function to select a due date
   Future<void> _selectDueDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -34,27 +36,60 @@ class _AddNewTaskPageState extends State<AddNewTaskPage> {
     }
   }
 
-  // Function to select a time
-  Future<void> _selectTime(BuildContext context, bool isStartTime) async {
+  Future<void> _selectTime(BuildContext context) async {
     final TimeOfDay? picked = await showTimePicker(
       context: context,
-      initialTime: isStartTime ? _startTime : _endTime,
+      initialTime: _time,
     );
     if (picked != null) {
       setState(() {
-        if (isStartTime) {
-          _startTime = picked;
-        } else {
-          _endTime = picked;
-        }
+        _time = picked;
       });
     }
   }
 
+  Future<void> _createNewTask() async {
+    if (_formKey.currentState!.validate()) {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token') ?? '';
+
+      if (token.isNotEmpty) {
+        // Chuyển đổi TimeOfDay sang định dạng HH:mm:ss
+        String formattedTime = '${_time.hour.toString().padLeft(2, '0')}:${_time.minute.toString().padLeft(2, '0')}:00';
+
+        TaskCreateRequestModel newTask = TaskCreateRequestModel(
+          title: _titleController.text,
+          description: _descriptionController.text,
+          priority: _level!,
+          dueDate: DateFormat('yyyy-MM-dd').format(_dueDate), // Format lại ngày
+          timeTask: formattedTime,
+        );
+
+        bool success = await _taskService.createTask(newTask, token);
+
+        if (success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Tạo nhiệm vụ thành công!')),
+          );
+          Navigator.pop(context);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Tạo nhiệm vụ thất bại.')),
+          );
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Token không hợp lệ')),
+        );
+      }
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFFFE29A), // Light yellow background
+      backgroundColor: Color(0xFFFFE29A), // Màu nền toàn màn hình
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -62,7 +97,6 @@ class _AddNewTaskPageState extends State<AddNewTaskPage> {
             key: _formKey,
             child: ListView(
               children: [
-                // Header with back button and title
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
@@ -74,7 +108,7 @@ class _AddNewTaskPageState extends State<AddNewTaskPage> {
                     ),
                     SizedBox(width: 50),
                     Text(
-                      'ADD NEW EVENT',
+                      'ADD NEW TASK',
                       style: TextStyle(
                         fontSize: 24.0,
                         fontWeight: FontWeight.bold,
@@ -85,7 +119,7 @@ class _AddNewTaskPageState extends State<AddNewTaskPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Title input
+                // Tiêu đề (Title)
                 Text(
                   'Title',
                   style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
@@ -94,10 +128,10 @@ class _AddNewTaskPageState extends State<AddNewTaskPage> {
                 TextFormField(
                   controller: _titleController,
                   decoration: InputDecoration(
-                    hintText: 'Title of event',
+                    hintText: 'Title of task',
                     hintStyle: TextStyle(color: Colors.white),
                     filled: true,
-                    fillColor: Color(0xFFFFA965),
+                    fillColor: Color(0xFFFFA965), // Màu cam
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(20.0),
                       borderSide: BorderSide.none,
@@ -112,7 +146,7 @@ class _AddNewTaskPageState extends State<AddNewTaskPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Description input
+                // Mô tả (Description)
                 Text(
                   'Description',
                   style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
@@ -125,7 +159,7 @@ class _AddNewTaskPageState extends State<AddNewTaskPage> {
                     hintText: 'Content',
                     hintStyle: TextStyle(color: Colors.white),
                     filled: true,
-                    fillColor: Color(0xFFFFA965),
+                    fillColor: Color(0xFFFFA965), // Màu cam
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(20.0),
                       borderSide: BorderSide.none,
@@ -134,7 +168,7 @@ class _AddNewTaskPageState extends State<AddNewTaskPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Due date selection
+                // Chọn ngày (Due Date)
                 Text(
                   'Due Date',
                   style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
@@ -143,47 +177,30 @@ class _AddNewTaskPageState extends State<AddNewTaskPage> {
                 ListTile(
                   title: Text(
                     '${DateFormat('dd/MM/yyyy').format(_dueDate)}',
-                    style: TextStyle(color: Colors.black),
+                    style: TextStyle(color: Colors.black), // Màu đen
                   ),
                   trailing: Icon(Icons.calendar_today, color: Colors.green),
                   onTap: () => _selectDueDate(context),
                 ),
                 const SizedBox(height: 16),
 
-                // Start and end time selection
+                // Chọn thời gian (Time)
                 Text(
-                  'Start and End Time',
+                  'Time',
                   style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Expanded(
-                      child: ListTile(
-                        title: Text(
-                          'Start: ${_startTime.format(context)}',
-                          style: TextStyle(color: Colors.black),
-                        ),
-                        trailing: Icon(Icons.access_time, color: Colors.green),
-                        onTap: () => _selectTime(context, true),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: ListTile(
-                        title: Text(
-                          'End: ${_endTime.format(context)}',
-                          style: TextStyle(color: Colors.black),
-                        ),
-                        trailing: Icon(Icons.access_time, color: Colors.green),
-                        onTap: () => _selectTime(context, false),
-                      ),
-                    ),
-                  ],
+                ListTile(
+                  title: Text(
+                    '${_time.format(context)}',
+                    style: TextStyle(color: Colors.black), // Màu đen
+                  ),
+                  trailing: Icon(Icons.access_time, color: Colors.green),
+                  onTap: () => _selectTime(context),
                 ),
                 const SizedBox(height: 16),
 
-                // Level dropdown selection
+                // Mức độ quan trọng (Level)
                 Text(
                   'Level',
                   style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
@@ -199,7 +216,7 @@ class _AddNewTaskPageState extends State<AddNewTaskPage> {
                       .toList(),
                   decoration: InputDecoration(
                     filled: true,
-                    fillColor: Color(0xFFFFA965),
+                    fillColor: Color(0xFFFFA965), // Màu cam
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(20.0),
                       borderSide: BorderSide.none,
@@ -219,14 +236,10 @@ class _AddNewTaskPageState extends State<AddNewTaskPage> {
                 ),
                 const SizedBox(height: 24),
 
-                // Submit button
+                // Nút xác nhận
                 Center(
                   child: ElevatedButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        // Handle form submission here
-                      }
-                    },
+                    onPressed: _createNewTask,
                     child: Text('Xác nhận'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFFFFA965),
