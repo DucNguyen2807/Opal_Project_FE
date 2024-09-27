@@ -9,4 +9,5 @@ class Config {
   static const String taskByDateEndPoint = 'Task/get-task-by-date';
   static const String toggleTaskCompletionEndpoint ='Task/toggle-task-completion';
   static const String createTaskEndpoint ='Task/create-task';
+  static const String deleteTaskEndpoint ='Task/delete-task';
 }

@@ -54,15 +54,17 @@ class _AddNewTaskPageState1 extends State<AddNewTaskPage1> {
       final token = prefs.getString('token') ?? '';
 
       if (token.isNotEmpty) {
-        // Chuyển đổi TimeOfDay sang định dạng HH:mm:ss
-        String formattedTime = '${_time.hour.toString().padLeft(2, '0')}:${_time.minute.toString().padLeft(2, '0')}:00';
+        // Chuyển `TimeOfDay` thành định dạng 24 giờ HH:mm:ss (API chỉ nhận 24 giờ)
+        final now = DateTime.now();
+        final taskDateTime = DateTime(now.year, now.month, now.day, _time.hour, _time.minute);
+        String formattedTime = DateFormat('HH:mm:ss').format(taskDateTime);
 
         TaskCreateRequestModel newTask = TaskCreateRequestModel(
           title: _titleController.text,
           description: _descriptionController.text,
           priority: _level!,
-          dueDate: DateFormat('yyyy-MM-dd').format(_dueDate), // Format lại ngày
-          timeTask: formattedTime,
+          dueDate: DateFormat('yyyy-MM-dd').format(_dueDate),
+          timeTask: formattedTime,  // Gửi thời gian theo định dạng 24 giờ
         );
 
         bool success = await _taskService.createTask(newTask, token);
@@ -71,7 +73,7 @@ class _AddNewTaskPageState1 extends State<AddNewTaskPage1> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Tạo nhiệm vụ thành công!')),
           );
-          Navigator.pop(context);
+          Navigator.pop(context, true);  // Trả về true khi tạo thành công
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Tạo nhiệm vụ thất bại.')),
@@ -84,6 +86,7 @@ class _AddNewTaskPageState1 extends State<AddNewTaskPage1> {
       }
     }
   }
+
 
 
   @override
@@ -251,6 +254,7 @@ class _AddNewTaskPageState1 extends State<AddNewTaskPage1> {
                     ),
                   ),
                 ),
+                SizedBox(height: 100),
               ],
             ),
           ),

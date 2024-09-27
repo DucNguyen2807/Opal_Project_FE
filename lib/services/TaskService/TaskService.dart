@@ -90,4 +90,37 @@ class TaskService extends BaseApiService {
       return false;
     }
   }
+  // Phương thức xóa task
+  Future<bool> deleteTask(String taskId, String token) async {
+    if (taskId.isEmpty) {
+      throw Exception('Task ID cannot be empty.');
+    }
+
+    final url = Uri.parse('$baseUrl${Config.deleteTaskEndpoint}/$taskId');
+
+    try {
+      final response = await http.delete(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        return true; // Xóa task thành công
+      } else if (response.statusCode == 404) {
+        throw Exception('Task not found or no permission');
+      } else {
+        throw Exception('Failed to delete task');
+      }
+    } catch (e) {
+      print('Error deleting task: $e');
+      return false; // Xóa task thất bại
+    }
+  }
+
 }
