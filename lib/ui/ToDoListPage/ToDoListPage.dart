@@ -29,8 +29,12 @@ class _ToDoListPageState extends State<ToDoListPage> {
   void initState() {
     super.initState();
     _taskService = TaskService();
+
+    _selectedDay = DateTime.now();
+
     _loadTasksForSelectedDay();
   }
+
 
   Future<void> _loadTasksForSelectedDay() async {
     setState(() {
@@ -108,99 +112,170 @@ class _ToDoListPageState extends State<ToDoListPage> {
       itemCount: congViecChoNgay.length,
       itemBuilder: (context, index) {
         final task = congViecChoNgay[index];
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-          child: Row(
-            children: [
-              Column(
+
+        return Dismissible(
+          key: Key(task['taskId'] ?? index.toString()),
+          direction: DismissDirection.endToStart,
+          background: Container(
+            color: Colors.redAccent,
+            alignment: Alignment.centerRight,
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: Icon(Icons.delete, color: Colors.white),
+          ),
+          onDismissed: (direction) async {
+            if (task['taskId'] != null && task['taskId'] is String) {
+              try {
+                final prefs = await SharedPreferences.getInstance();
+                final token = prefs.getString('token') ?? '';
+                if (token.isNotEmpty) {
+                  bool success = await _taskService.deleteTask(task['taskId'], token);
+                  if (success) {
+                    setState(() {
+                      congViecChoNgay.removeAt(index);
+                    });
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Task đã được xóa thành công.')),
+                    );
+                  }
+                }
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Xóa task thất bại.')),
+                );
+              }
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Task ID không khả dụng.')),
+              );
+            }
+          },
+          child: GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: () {
+              // Logic khác khi nhấn vào item (nếu cần)
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text(
-                    task['time'],
-                    style: TextStyle(
-                      color: secondaryColor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 22,
+                  // Hiển thị thời gian ở bên trái ngoài khung
+                  Column(
+                    children: [
+                      Text(
+                        task['time'],
+                        style: TextStyle(
+                          color: secondaryColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 22,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(width: 16),
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.all(12.0),
+                      decoration: BoxDecoration(
+                        color: task['isCompleted'] ? completedTaskColor : Colors.white,
+                        borderRadius: BorderRadius.circular(15),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.2),
+                            blurRadius: 6,
+                            spreadRadius: 2,
+                          ),
+                        ],
+                        border: Border(
+                          left: BorderSide(
+                            color: secondaryColor,
+                            width: 5,
+                          ),
+                        ),
+                      ),
+                      constraints: BoxConstraints(
+                        minHeight: 80, // Đặt chiều cao tối thiểu cho khung
+                        maxWidth: 250, // Giới hạn độ rộng
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // Nội dung task
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  task['title'],
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                    fontSize: 16,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis, // Cắt bớt nếu quá dài
+                                ),
+                                SizedBox(height: 4),
+                                Text(
+                                  task['description'],
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 14,
+                                  ),
+                                  maxLines: 2, // Giới hạn số dòng của mô tả
+                                  overflow: TextOverflow.ellipsis, // Cắt bớt nếu quá dài
+                                ),
+                              ],
+                            ),
+                          ),
+                          // Nút kiểm tra trạng thái hoàn thành
+                          IconButton(
+                            icon: task['isCompleted']
+                                ? Icon(Icons.check_circle, color: Colors.greenAccent, size: 28)
+                                : Icon(Icons.radio_button_unchecked, color: secondaryColor, size: 28),
+                            onPressed: () async {
+                              if (task['taskId'] != null && task['taskId'] is String) {
+                                try {
+                                  final prefs = await SharedPreferences.getInstance();
+                                  final token = prefs.getString('token') ?? '';
+                                  if (token.isNotEmpty) {
+                                    bool success = await _taskService.toggleTaskCompletion(task['taskId'], token);
+                                    if (success) {
+                                      setState(() {
+                                        task['isCompleted'] = !task['isCompleted'];
+                                      });
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text('Trạng thái task đã được cập nhật.')),
+                                      );
+                                    }
+                                  }
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text('Cập nhật trạng thái task thất bại.')),
+                                  );
+                                }
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Task ID không khả dụng.')),
+                                );
+                              }
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
               ),
-              SizedBox(width: 16),
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(12.0),
-                  decoration: BoxDecoration(
-                    color: task['isCompleted'] ? completedTaskColor : Colors.white,
-                    borderRadius: BorderRadius.circular(15),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.2),
-                        blurRadius: 6,
-                        spreadRadius: 2,
-                      ),
-                    ],
-                    border: Border(
-                      left: BorderSide(
-                        color: secondaryColor,
-                        width: 5,
-                      ),
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        task['title'],
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                          fontSize: 16,
-                        ),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        task['description'],
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              IconButton(
-                  icon: task['isCompleted']
-                      ? Icon(Icons.check_circle, color: Colors.greenAccent, size: 28)
-                      : Icon(Icons.radio_button_unchecked, color: secondaryColor, size: 28),
-                  onPressed: () async {
-                    if (task['taskId'] != null && task['taskId'] is String) {
-                      try {
-                        final prefs = await SharedPreferences.getInstance();
-                        final token = prefs.getString('token') ?? '';
-                        if (token.isNotEmpty) {
-                          bool success = await _taskService.toggleTaskCompletion(task['taskId'], token);
-
-                          if (success) {
-                            setState(() {
-                              task['isCompleted'] = !task['isCompleted'];
-                            });
-                          }
-                        }
-                      } catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Failed to update task status.')));
-                      }
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Task ID is not available.')));
-                    }
-                  }),
-            ],
+            ),
           ),
         );
       },
     );
   }
+
+
+
 
   Widget _xayDungThanhCongCuDuoi() {
     return Padding(
@@ -217,10 +292,10 @@ class _ToDoListPageState extends State<ToDoListPage> {
             onPressed: () {},
           ),
           IconButton(
-            icon: Icon(Icons.add_circle, color: primaryColor), // Sử dụng màu chính
+            icon: Icon(Icons.add_circle, color: primaryColor),
             iconSize: 80,
-            onPressed: () {
-              Navigator.push(
+            onPressed: () async {
+              final result = await Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => AddNewTaskPage1(
@@ -228,6 +303,10 @@ class _ToDoListPageState extends State<ToDoListPage> {
                   ),
                 ),
               );
+              if (result == true) {
+                // Nếu tạo công việc thành công, cập nhật lại danh sách
+                _loadTasksForSelectedDay();
+              }
             },
           ),
           IconButton(
