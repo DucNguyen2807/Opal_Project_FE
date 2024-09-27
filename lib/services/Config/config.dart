@@ -13,9 +13,6 @@ class Config {
   static const String toggleTaskCompletionEndpoint ='Task/toggle-task-completion';
   static const String createTaskEndpoint ='Task/create-task';
   static const String deleteTaskEndpoint ='Task/delete-task';
-}
-  static const String toggleTaskCompletionEndpoint = 'Task/toggle-task-completion';
-  static const String createTaskEndpoint = 'Task/create-task';
 
   // Event-related endpoint
   static const String getEventsByDateEndpoint = 'Events';
