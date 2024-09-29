@@ -29,7 +29,6 @@ class _EventPageState extends State<EventPage> {
 
   Future<void> _fetchEvents(DateTime date) async {
     final eventService = EventService();
-    setState(() => _isLoading = true);
     try {
       final events = await eventService.getEventsByDate(date);
       setState(() {
@@ -38,7 +37,9 @@ class _EventPageState extends State<EventPage> {
       });
     } catch (e) {
       print('Error fetching events: $e');
-      setState(() => _isLoading = false);
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -79,7 +80,7 @@ class _EventPageState extends State<EventPage> {
             _isLoading
                 ? CircularProgressIndicator()
                 : _events.isEmpty
-                ? Text('Không có sự kiện nào cho ngày này')
+                ? Text('No events for this date')
                 : _buildEventList(),
           ],
         ),
@@ -108,6 +109,7 @@ class _EventPageState extends State<EventPage> {
             event['eventTitle'],
             event['eventDescription'] ?? 'Unknown Description',
             _formatEventTime(event['startTime'], event['endTime']),
+            event['priority'] ?? 'bình thường',
           );
         }).toList(),
       ),
@@ -120,7 +122,9 @@ class _EventPageState extends State<EventPage> {
     return '${start.hour}:${start.minute.toString().padLeft(2, '0')} - ${end.hour}:${end.minute.toString().padLeft(2, '0')}';
   }
 
-  Widget _buildTaskItem(String title, String location, String time) {
+  Widget _buildTaskItem(String title, String location, String time, String priority) {
+    Color iconColor = _getPriorityColor(priority);
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: Card(
@@ -142,10 +146,23 @@ class _EventPageState extends State<EventPage> {
               Text(time),
             ],
           ),
-          leading: Icon(Icons.event, color: Colors.green),
+          leading: Icon(Icons.event, color: iconColor),
           trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey),
         ),
       ),
     );
+  }
+
+  Color _getPriorityColor(String priority) {
+    switch (priority.toLowerCase()) {
+      case 'quan trọng':
+        return Colors.red;
+      case 'bình thường':
+        return Colors.blue;
+      case 'thường':
+        return Colors.green;
+      default:
+        return Colors.grey;
+    }
   }
 }

@@ -183,7 +183,6 @@ class _AddNewTaskPageState extends State<AddNewTaskPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Level dropdown selection
                 Text(
                   'Level',
                   style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
@@ -191,7 +190,7 @@ class _AddNewTaskPageState extends State<AddNewTaskPage> {
                 const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
                   value: _level,
-                  items: ['Important', 'Normal', 'Remember']
+                  items: ['Quan trọng', 'Bình thường', 'Thường']
                       .map((level) => DropdownMenuItem(
                     child: Text(level),
                     value: level,
