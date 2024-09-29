@@ -93,7 +93,7 @@ class _EventPageState extends State<EventPage> {
             context,
             MaterialPageRoute(
               builder: (context) =>
-                  AddNewTaskPage(selectedDate: _selectedDay ?? DateTime.now()),
+                  AddNewEventPage(selectedDate: _selectedDay ?? DateTime.now()),
             ),
           );
         },

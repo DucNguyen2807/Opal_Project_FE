@@ -1,23 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../model/EventCreateRequestModel.dart';
+import '../../services/EventService/EventService.dart';
 
-class AddNewTaskPage extends StatefulWidget {
+
+class AddNewEventPage extends StatefulWidget {
   final DateTime selectedDate;
 
-  AddNewTaskPage({required this.selectedDate});
+  AddNewEventPage({required this.selectedDate});
 
   @override
-  _AddNewTaskPageState createState() => _AddNewTaskPageState();
+  _AddNewEventPageState createState() => _AddNewEventPageState();
 }
 
-class _AddNewTaskPageState extends State<AddNewTaskPage> {
+class _AddNewEventPageState extends State<AddNewEventPage> {
   final _formKey = GlobalKey<FormState>();
-  TextEditingController _titleController = TextEditingController();
-  TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
   DateTime _dueDate = DateTime.now();
   TimeOfDay _startTime = TimeOfDay(hour: 9, minute: 0);
   TimeOfDay _endTime = TimeOfDay(hour: 17, minute: 0);
-  String? _level;
+  String? _priority;
+  bool _recurring = false;
+
+  bool _isLoading = false;
+
+  final EventService _eventService = EventService();
 
   // Function to select a due date
   Future<void> _selectDueDate(BuildContext context) async {
@@ -51,40 +60,128 @@ class _AddNewTaskPageState extends State<AddNewTaskPage> {
     }
   }
 
+  // Function to handle form submission
+  Future<void> _submitForm() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    // Validate time: endTime should be after startTime
+    final start = DateTime(
+      _dueDate.year,
+      _dueDate.month,
+      _dueDate.day,
+      _startTime.hour,
+      _startTime.minute,
+    );
+    final end = DateTime(
+      _dueDate.year,
+      _dueDate.month,
+      _dueDate.day,
+      _endTime.hour,
+      _endTime.minute,
+    );
+
+    if (end.isBefore(start) || end.isAtSameMomentAs(start)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('End time must be after start time')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token') ?? '';
+
+    if (token.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Token không hợp lệ')),
+      );
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
+
+    // Format times to "HH:mm:ss"
+    String formatTimeOfDay(TimeOfDay tod) {
+      final hours = tod.hour.toString().padLeft(2, '0');
+      final minutes = tod.minute.toString().padLeft(2, '0');
+      final seconds = '00'; // Assuming seconds are always "00"
+      return '$hours:$minutes:$seconds';
+    }
+
+    EventCreateRequestModel newEvent = EventCreateRequestModel(
+      eventTitle: _titleController.text.trim(),
+      eventDescription: _descriptionController.text.trim(),
+      priority: _priority!,
+      startTime: formatTimeOfDay(_startTime),
+      endTime: formatTimeOfDay(_endTime),
+      recurring: _recurring,
+    );
+
+    try {
+      final response = await _eventService.createEvent(newEvent);
+
+      if (response['status'] == 'success' || response.containsKey('id')) {
+        // Assuming the API returns an 'id' or 'status' on success
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Tạo sự kiện thành công!')),
+        );
+        Navigator.pop(context, true); // Return to previous screen
+      } else {
+        // Handle API errors
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response['message'] ?? 'Failed to create event')),
+        );
+      }
+    } catch (e) {
+      // Handle network or unexpected errors
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${e.toString()}')),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xFFFFE29A), // Light yellow background
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.green),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        title: Text(
+          'ADD NEW EVENT',
+          style: TextStyle(
+            fontSize: 24.0,
+            fontWeight: FontWeight.bold,
+            color: Colors.green,
+          ),
+        ),
+        centerTitle: true,
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Form(
+          child: _isLoading
+              ? Center(child: CircularProgressIndicator())
+              : Form(
             key: _formKey,
             child: ListView(
               children: [
-                // Header with back button and title
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.arrow_back, color: Colors.green),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                    ),
-                    SizedBox(width: 50),
-                    Text(
-                      'ADD NEW EVENT',
-                      style: TextStyle(
-                        fontSize: 24.0,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.green,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-
                 // Title input
                 Text(
                   'Title',
@@ -183,17 +280,18 @@ class _AddNewTaskPageState extends State<AddNewTaskPage> {
                 ),
                 const SizedBox(height: 16),
 
+                // Priority selection
                 Text(
-                  'Level',
+                  'Priority',
                   style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
-                  value: _level,
-                  items: ['Quan trọng', 'Bình thường', 'Thường']
-                      .map((level) => DropdownMenuItem(
-                    child: Text(level),
-                    value: level,
+                  value: _priority,
+                  items: ['Quan trọng', 'Bình thường', 'Thường']
+                      .map((priority) => DropdownMenuItem(
+                    child: Text(priority),
+                    value: priority,
                   ))
                       .toList(),
                   decoration: InputDecoration(
@@ -206,26 +304,42 @@ class _AddNewTaskPageState extends State<AddNewTaskPage> {
                   ),
                   onChanged: (value) {
                     setState(() {
-                      _level = value;
+                      _priority = value;
                     });
                   },
                   validator: (value) {
                     if (value == null) {
-                      return 'Please select a level';
+                      return 'Please select a priority';
                     }
                     return null;
                   },
+                ),
+                const SizedBox(height: 16),
+
+                // Recurring switch
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Recurring',
+                      style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                    ),
+                    Switch(
+                      value: _recurring,
+                      onChanged: (value) {
+                        setState(() {
+                          _recurring = value;
+                        });
+                      },
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 24),
 
                 // Submit button
                 Center(
                   child: ElevatedButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        // Handle form submission here
-                      }
-                    },
+                    onPressed: _submitForm,
                     child: Text('Xác nhận'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFFFFA965),
