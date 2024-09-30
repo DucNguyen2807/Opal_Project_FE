@@ -74,7 +74,6 @@ class EventService extends BaseApiService {
 
         try {
           final decodedResponse = jsonDecode(response.body);
-          // Check for 'eventId' to determine success
           if (decodedResponse.containsKey('eventId')) {
             return {
               'status': 'success',
@@ -102,6 +101,43 @@ class EventService extends BaseApiService {
     } catch (e) {
       print('Error creating event: $e');
       throw Exception('Error creating event: $e');
+    }
+  }
+  Future<void> deleteEvent(String eventId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token') ?? '';
+
+    if (token.isEmpty) {
+      throw Exception('Token không hợp lệ');
+    }
+
+    final url = Uri.parse('${Config.baseUrl}${Config.deleteEventEndpoint}/$eventId');
+
+    try {
+      final response = await http.delete(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print('Delete Response status: ${response.statusCode}');
+      print('Delete Response body: ${response.body}');
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        return;
+      } else {
+        String errorMessage = 'Failed to delete event';
+        try {
+          final decodedError = jsonDecode(response.body);
+          errorMessage = decodedError['message'] ?? errorMessage;
+        } catch (_) {}
+        throw Exception('Failed to delete event: ${response.statusCode} - $errorMessage');
+      }
+    } catch (e) {
+      print('Error deleting event: $e');
+      throw Exception('Error deleting event: $e');
     }
   }
 }

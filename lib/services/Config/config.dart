@@ -17,4 +17,5 @@ class Config {
   // Event-related endpoint
   static const String getEventsByDateEndpoint = 'Events';
   static const String createEventEndpoint = 'Events/create-event';
+  static const String deleteEventEndpoint ='Events/delete-event';
 }

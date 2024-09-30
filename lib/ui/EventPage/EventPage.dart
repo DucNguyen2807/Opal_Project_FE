@@ -28,6 +28,10 @@ class _EventPageState extends State<EventPage> {
   }
 
   Future<void> _fetchEvents(DateTime date) async {
+    setState(() {
+      _isLoading = true;
+    });
+
     final eventService = EventService();
     try {
       final events = await eventService.getEventsByDate(date);
@@ -40,6 +44,26 @@ class _EventPageState extends State<EventPage> {
       setState(() {
         _isLoading = false;
       });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Không thể tải sự kiện: $e')),
+      );
+    }
+  }
+
+  Future<void> _deleteEvent(String eventId, int index) async {
+    try {
+      await EventService().deleteEvent(eventId);
+      setState(() {
+        _events.removeAt(index);
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Sự kiện đã được xoá')),
+      );
+    } catch (e) {
+      print('Error deleting event: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Không thể xoá sự kiện: $e')),
+      );
     }
   }
 
@@ -66,7 +90,6 @@ class _EventPageState extends State<EventPage> {
                 setState(() {
                   _selectedDay = selectedDay;
                   _focusedDay = focusedDay;
-                  _isLoading = true;
                 });
                 _fetchEvents(selectedDay);
               },
@@ -95,7 +118,9 @@ class _EventPageState extends State<EventPage> {
               builder: (context) =>
                   AddNewEventPage(selectedDate: _selectedDay ?? DateTime.now()),
             ),
-          );
+          ).then((value) {
+            _fetchEvents(_selectedDay!);
+          });
         },
       ),
     );
@@ -103,16 +128,51 @@ class _EventPageState extends State<EventPage> {
 
   Widget _buildEventList() {
     return Expanded(
-      child: ListView(
-        children: _events.map((event) {
-          print('Event Title: ${event['eventTitle']}, Priority: ${event['priority']}');
-          return _buildTaskItem(
-            event['eventTitle'],
-            event['eventDescription'] ?? 'Unknown Description',
-            _formatEventTime(event['startTime'], event['endTime']),
-            event['priority'] ?? 'bình thường',
+      child: ListView.builder(
+        itemCount: _events.length,
+        itemBuilder: (context, index) {
+          final event = _events[index];
+          final eventId = event['eventId'];
+
+          return Dismissible(
+            key: Key(eventId),
+            direction: DismissDirection.endToStart,
+            background: Container(
+              color: Colors.red,
+              alignment: Alignment.centerRight,
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: Icon(Icons.delete, color: Colors.white),
+            ),
+            confirmDismiss: (direction) async {
+              return await showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: Text('Xoá Sự Kiện'),
+                  content: Text('Bạn có chắc chắn muốn xoá sự kiện này?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(false),
+                      child: Text('Hủy'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(true),
+                      child: Text('Xoá'),
+                    ),
+                  ],
+                ),
+              );
+            },
+            onDismissed: (direction) async {
+              await _deleteEvent(eventId, index);
+            },
+            child: _buildTaskItem(
+              event['eventTitle'],
+              event['eventDescription'] ?? 'Unknown Description',
+              _formatEventTime(event['startTime'], event['endTime']),
+              event['priority'] ?? 'bình thường',
+            ),
           );
-        }).toList(),
+        },
       ),
     );
   }
