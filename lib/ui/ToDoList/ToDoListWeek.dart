@@ -4,7 +4,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../model/EventCreateRequestModel.dart';
 import '../../services/EventService/EventService.dart';
 
-
 class AddNewEventPage extends StatefulWidget {
   final DateTime selectedDate;
 
@@ -28,7 +27,6 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
 
   final EventService _eventService = EventService();
 
-  // Function to select a due date
   Future<void> _selectDueDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -43,7 +41,6 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
     }
   }
 
-  // Function to select a time
   Future<void> _selectTime(BuildContext context, bool isStartTime) async {
     final TimeOfDay? picked = await showTimePicker(
       context: context,
@@ -60,13 +57,11 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
     }
   }
 
-  // Function to handle form submission
   Future<void> _submitForm() async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
 
-    // Validate time: endTime should be after startTime
     final start = DateTime(
       _dueDate.year,
       _dueDate.month,
@@ -106,11 +101,10 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
       return;
     }
 
-    // Format times to "HH:mm:ss"
     String formatTimeOfDay(TimeOfDay tod) {
       final hours = tod.hour.toString().padLeft(2, '0');
       final minutes = tod.minute.toString().padLeft(2, '0');
-      final seconds = '00'; // Assuming seconds are always "00"
+      final seconds = '00';
       return '$hours:$minutes:$seconds';
     }
 
@@ -125,21 +119,17 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
 
     try {
       final response = await _eventService.createEvent(newEvent);
-
-      if (response['status'] == 'success' || response.containsKey('id')) {
-        // Assuming the API returns an 'id' or 'status' on success
+      if (response['status'] == 'success' && response['data'].containsKey('eventId')) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Tạo sự kiện thành công!')),
         );
-        Navigator.pop(context, true); // Return to previous screen
+        Navigator.pop(context, true);
       } else {
-        // Handle API errors
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(response['message'] ?? 'Failed to create event')),
         );
       }
     } catch (e) {
-      // Handle network or unexpected errors
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: ${e.toString()}')),
       );
@@ -153,7 +143,7 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFFFE29A), // Light yellow background
+      backgroundColor: Color(0xFFFFE29A),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -209,7 +199,6 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Description input
                 Text(
                   'Description',
                   style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
@@ -231,7 +220,6 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Due date selection
                 Text(
                   'Due Date',
                   style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
@@ -280,7 +268,6 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Priority selection
                 Text(
                   'Priority',
                   style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
@@ -336,7 +323,6 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
                 ),
                 const SizedBox(height: 24),
 
-                // Submit button
                 Center(
                   child: ElevatedButton(
                     onPressed: _submitForm,

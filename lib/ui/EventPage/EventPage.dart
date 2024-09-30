@@ -105,6 +105,7 @@ class _EventPageState extends State<EventPage> {
     return Expanded(
       child: ListView(
         children: _events.map((event) {
+          print('Event Title: ${event['eventTitle']}, Priority: ${event['priority']}');
           return _buildTaskItem(
             event['eventTitle'],
             event['eventDescription'] ?? 'Unknown Description',
@@ -154,12 +155,17 @@ class _EventPageState extends State<EventPage> {
   }
 
   Color _getPriorityColor(String priority) {
-    switch (priority.toLowerCase()) {
+    String normalizedPriority = priority.toLowerCase().trim();
+
+    switch (normalizedPriority) {
       case 'quan trọng':
+      case 'quan trọng':
         return Colors.red;
       case 'bình thường':
+      case 'bình thường':
         return Colors.blue;
       case 'thường':
+      case 'thường':
         return Colors.green;
       default:
         return Colors.grey;

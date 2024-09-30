@@ -73,13 +73,31 @@ class EventService extends BaseApiService {
         }
 
         try {
-          return jsonDecode(response.body);
+          final decodedResponse = jsonDecode(response.body);
+          // Check for 'eventId' to determine success
+          if (decodedResponse.containsKey('eventId')) {
+            return {
+              'status': 'success',
+              'data': decodedResponse,
+            };
+          } else {
+            return {
+              'status': 'error',
+              'message': 'Unexpected response format',
+            };
+          }
         } catch (e) {
           print('Failed to decode JSON: $e');
           return {'status': 'error', 'message': response.body};
         }
       } else {
-        throw Exception('Failed to create event: ${response.statusCode} - ${response.body}');
+        // Extract error message if available
+        String errorMessage = 'Failed to create event';
+        try {
+          final decodedError = jsonDecode(response.body);
+          errorMessage = decodedError['message'] ?? errorMessage;
+        } catch (_) {}
+        throw Exception('Failed to create event: ${response.statusCode} - $errorMessage');
       }
     } catch (e) {
       print('Error creating event: $e');
