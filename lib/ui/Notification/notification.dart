@@ -1,70 +1,89 @@
 import 'package:flutter/material.dart';
 import 'package:signalr_core/signalr_core.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
-class NotificationClient extends StatefulWidget {
-  @override
-  _NotificationClientState createState() => _NotificationClientState();
-}
-
-class _NotificationClientState extends State<NotificationClient> {
+class NotificationService {
   late HubConnection _hubConnection;
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+  FlutterLocalNotificationsPlugin();
 
-  @override
-  void initState() {
-    super.initState();
-
-    // Replace with your actual SignalR Hub URL
-    String hubUrl = "https://10.0.2.2:7203/notificationhub";
-
+  NotificationService(String token) {
     _hubConnection = HubConnectionBuilder()
-        .withUrl(hubUrl)
+        .withUrl('https://10.0.2.2:7203/notificationhub', HttpConnectionOptions(
+      accessTokenFactory: () async => token,
+    ))
+        .withAutomaticReconnect()
         .build();
 
-    _hubConnection.on("ReceiveNotification", (arguments) {
-      final message = arguments?[0];
-      print("Received message: $message");
-
-      // Show notification dialog
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text("Notification"),
-          content: Text(message ?? "No message received"),
-          actions: [
-            TextButton(
-              child: Text("OK"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        ),
-      );
-    });
-
-    // Start connection
-    startConnection();
+    _initializeLocalNotifications();
   }
 
-  void startConnection() {
-    _hubConnection.start()?.then((_) {
-      print("Connection started successfully");
-    }).catchError((error) {
-      print("Error starting connection: $error");
-    });
-  }
+  void _initializeLocalNotifications() {
+    const AndroidInitializationSettings initializationSettingsAndroid =
+    AndroidInitializationSettings('@mipmap/ic_launcher');
 
-  @override
-  void dispose() {
-    _hubConnection.stop();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("Notifications")),
-      body: Center(child: Text('Listening for notifications...')),
+    final InitializationSettings initializationSettings = InitializationSettings(
+      android: initializationSettingsAndroid,
     );
+
+    flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  }
+
+  Future<void> start() async {
+    try {
+      await _hubConnection.start();
+      print("Connected to SignalR");
+    } catch (e) {
+      print("Error connecting to SignalR: $e");
+    }
+
+    _hubConnection.onclose((error) {
+      print("Connection closed: $error");
+    });
+
+    _hubConnection.onreconnected((connectionId) {
+      print("Reconnected to SignalR with connection ID: $connectionId");
+    });
+
+    _hubConnection.onreconnecting((error) {
+      print("Reconnecting to SignalR...");
+    });
+  }
+
+  void onReceiveNotification(Function(String) callback) {
+    _hubConnection.on("ReceiveNotification", (arguments) {
+      if (arguments != null && arguments.isNotEmpty) {
+        String message = arguments[0];
+        _showLocalNotification(message);
+        callback(message);
+      }
+    });
+  }
+
+  Future<void> _showLocalNotification(String message) async {
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+    AndroidNotificationDetails(
+      'your_channel_id',
+      'your_channel_name',
+      channelDescription: 'your_channel_description',
+      importance: Importance.max,
+      priority: Priority.high,
+      showWhen: false,
+    );
+    const NotificationDetails platformChannelSpecifics =
+    NotificationDetails(android: androidPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.show(
+      0,
+      'Thông báo mới',
+      message,
+      platformChannelSpecifics,
+      payload: 'item x',
+    );
+  }
+
+  Future<void> stop() async {
+    await _hubConnection.stop();
+    print("Disconnected from SignalR");
   }
 }

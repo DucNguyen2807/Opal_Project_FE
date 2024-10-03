@@ -21,6 +21,7 @@ class _OpalLoginScreenState extends State<OpalLoginScreen> {
         emailController.text,
         passwordController.text,
       );
+      if (!mounted) return;
       if (response.containsKey('token')) {
         Navigator.pushReplacement(
           context,
@@ -32,9 +33,11 @@ class _OpalLoginScreenState extends State<OpalLoginScreen> {
         );
       }
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error.toString())),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(error.toString())),
+        );
+      }
     }
   }
 
