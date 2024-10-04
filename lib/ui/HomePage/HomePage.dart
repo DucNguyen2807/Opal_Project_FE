@@ -98,7 +98,7 @@ class _HomePageState extends State<HomePage> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    "7",
+                    " 7 ",
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 20,

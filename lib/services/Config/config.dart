@@ -7,9 +7,14 @@ class Config {
   static const String sendOTPEndpoint = 'OTP/send';
   static const String verifyOTPEndpoint = 'OTP/verify';
   static const String resetPasswordEndpoint = 'User/password/reset';
+  static const String updateUserEndpoint = 'User/user/update';
+  static const String loadDataEndpoint = 'User/load-data';
+  static const String changePasswordEndpoint = 'User/password/change';
+
 
   // Task-related endpoints
   static const String taskByDateEndPoint = 'Task/get-task-by-date';
+  static const String myTaskByDateEndPoint = 'Task/get-my-task-by-date';
   static const String toggleTaskCompletionEndpoint ='Task/toggle-task-completion';
   static const String createTaskEndpoint ='Task/create-task';
   static const String deleteTaskEndpoint ='Task/delete-task';

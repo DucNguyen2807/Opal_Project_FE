@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:signalr_core/signalr_core.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NotificationService {
@@ -10,9 +9,12 @@ class NotificationService {
 
   NotificationService(String token) {
     _hubConnection = HubConnectionBuilder()
-        .withUrl('https://10.0.2.2:7203/notificationhub', HttpConnectionOptions(
-      accessTokenFactory: () async => token,
-    ))
+        .withUrl(
+      'https://10.0.2.2:7203/notificationhub',
+      HttpConnectionOptions(
+        accessTokenFactory: () async => token,
+      ),
+    )
         .withAutomaticReconnect()
         .build();
 
@@ -34,10 +36,17 @@ class NotificationService {
     try {
       await _hubConnection.start();
       print("Connected to SignalR");
+      onReceiveNotification((message) {
+        // Xử lý thông báo khi nhận được
+        print("Notification callback: $message");
+      });
     } catch (e) {
       print("Error connecting to SignalR: $e");
     }
+  }
 
+
+  void _setupConnectionHandlers() {
     _hubConnection.onclose((error) {
       print("Connection closed: $error");
     });
@@ -54,12 +63,16 @@ class NotificationService {
   void onReceiveNotification(Function(String) callback) {
     _hubConnection.on("ReceiveNotification", (arguments) {
       if (arguments != null && arguments.isNotEmpty) {
-        String message = arguments[0];
+        String message = arguments[0] as String;
+        print("Received notification: $message"); // Thêm dòng này
         _showLocalNotification(message);
         callback(message);
+      } else {
+        print("No notification arguments received.");
       }
     });
   }
+
 
   Future<void> _showLocalNotification(String message) async {
     const AndroidNotificationDetails androidPlatformChannelSpecifics =
@@ -73,17 +86,30 @@ class NotificationService {
     );
     const NotificationDetails platformChannelSpecifics =
     NotificationDetails(android: androidPlatformChannelSpecifics);
-    await flutterLocalNotificationsPlugin.show(
-      0,
-      'Thông báo mới',
-      message,
-      platformChannelSpecifics,
-      payload: 'item x',
-    );
+
+    try {
+      await flutterLocalNotificationsPlugin.show(
+        0,
+        'Thông báo mới',
+        message,
+        platformChannelSpecifics,
+        payload: 'item x',
+      );
+    } catch (e) {
+      print("Error showing notification: $e");
+    }
   }
 
   Future<void> stop() async {
     await _hubConnection.stop();
     print("Disconnected from SignalR");
+  }
+
+  Future _onSelectNotification(String? payload) async {
+    // Xử lý khi người dùng nhấn vào thông báo
+    if (payload != null) {
+      print("Notification payload: $payload");
+      // Thêm logic điều hướng hoặc xử lý tại đây nếu cần
+    }
   }
 }

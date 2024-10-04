@@ -22,10 +22,11 @@ class AuthService extends BaseApiService {
     return response;
   }
 
-  Future<Map<String, dynamic>> register(String username, String password) async {
+  Future<Map<String, dynamic>> register(String username, String fullname, String phoneNumber) async {
     return post('${Config.registerEndpoint}', {
       'username': username,
-      'password': password
+      'fullname': fullname,
+      'phoneNumber' : phoneNumber
     });
   }
 
@@ -65,4 +66,83 @@ class AuthService extends BaseApiService {
     }
     return null;
   }
+  Future<Map<String, dynamic>> updateUser(String fullname, String email, String phoneNumber, String gender) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+
+    if (token == null) {
+      throw Exception("User is not logged in");
+    }
+
+    final response = await put('${Config.updateUserEndpoint}', {
+      'fullname': fullname,
+      'email': email,
+      'phoneNumber': phoneNumber,
+      'gender': gender
+    }, headers: {
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json', // Thêm header Content-Type
+    });
+
+    if (response.containsKey('success')) {
+      print('User updated successfully');
+    }
+
+    return response;
+  }
+
+  Future<Map<String, dynamic>> loadUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+
+    if (token == null) {
+      throw Exception("User is not logged in");
+    }
+
+    try {
+      final response = await get('${Config.loadDataEndpoint}', headers: {
+        'Authorization': 'Bearer $token'
+      });
+
+      // Ghi log thông tin phản hồi từ API
+      print('Load user data response: $response');
+
+      return response;
+    } catch (e) {
+      // Ghi log lỗi nếu có
+      print('Error loading user data: ${e.toString()}');
+      throw Exception('Failed to load user data: ${e.toString()}');
+    }
+  }
+
+
+  Future<Map<String, dynamic>> changePassword(String oldPassword, String newPassword, String confirmPassword) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+
+    if (token == null) {
+      throw Exception("User is not logged in");
+    }
+
+    try {
+      final response = await put('${Config.changePasswordEndpoint}', {
+        'oldPassword': oldPassword,
+        'newPassword': newPassword,
+        'confirmPassword': confirmPassword
+      }, headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json', // Thêm header Content-Type
+      });
+
+      if (response.containsKey('success')) {
+        print('Password changed successfully');
+      }
+
+      return response;
+    } catch (e) {
+      print('Error changing password: ${e.toString()}');
+      throw Exception('Failed to change password: ${e.toString()}');
+    }
+  }
+
 }

@@ -34,6 +34,34 @@ class TaskService extends BaseApiService {
     }
   }
 
+  Future<List<Map<String, dynamic>>> getTasksAndPriorityByDate(DateTime date, String token) async {
+    final url = Uri.parse('$baseUrl${Config.taskByDateEndPoint}?date=${date.toIso8601String()}');
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      try {
+        final data = List<Map<String, dynamic>>.from(jsonDecode(response.body));
+        print('Decoded data: $data');
+        return data;
+      } catch (e) {
+        print('Failed to decode JSON: $e');
+        throw Exception('Failed to decode tasks data');
+      }
+    } else {
+      throw Exception('Failed to load tasks: ${response.statusCode} - ${response.body}');
+    }
+  }
+
+
   // Phương thức chuyển đổi trạng thái hoàn thành của task
   Future<bool> toggleTaskCompletion(String taskId, String token) async {
     if (taskId.isEmpty) {
