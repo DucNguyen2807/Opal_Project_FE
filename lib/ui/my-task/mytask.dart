@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:opal_project/services/TaskService/TaskService.dart'; // Import TaskService
+import 'package:shared_preferences/shared_preferences.dart'; // Import để lấy token
+import 'package:percent_indicator/percent_indicator.dart'; // Import thư viện percent_indicator
+import 'package:intl/intl.dart';
 import '../CustomBottomBar/CustomBottomBar.dart';
 import '../EventPage/EventPage.dart';
 import '../FeedBird/FeedBird.dart';
 import '../ToDoListPage/ToDoListPage.dart';
 import '../settings/settings.dart';
+import '../HomePage/HomePage.dart';
+
 
 class MytaskScreen extends StatefulWidget {
   const MytaskScreen({super.key});
@@ -13,13 +19,86 @@ class MytaskScreen extends StatefulWidget {
 }
 
 class _MytaskScreenState extends State<MytaskScreen> {
-  List<bool> _taskCompletionStatus = [false, false, false];
+  List<Map<String, dynamic>> tasks = [];
+  List<bool> _taskCompletionStatus = [];
+  bool isLoading = true;
+  late TaskService _taskService;
+  late String token;
+  String formattedDate = DateFormat('MMMM d').format(DateTime.now());
+
+  @override
+  void initState() {
+    super.initState();
+    _taskService = TaskService();
+    _loadTasks(); // Gọi phương thức để load danh sách task
+  }
+
+  // Phương thức load danh sách task
+  Future<void> _loadTasks() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? storedToken = prefs.getString('token'); // Xử lý token có thể null
+    if (storedToken == null || storedToken.isEmpty) {
+      debugPrint('Token is null or empty');
+      setState(() {
+        isLoading = false; // Dừng loading
+      });
+      return; // Thoát nếu không có token
+    }
+
+    token = storedToken; // Gán token
+
+    try {
+      List<Map<String, dynamic>> taskList = await _taskService.getTasksAndPriorityByDate(DateTime.now(), token);
+
+      debugPrint('Task List: $taskList');
+
+      setState(() {
+        tasks = taskList;
+        _taskCompletionStatus = List<bool>.generate(tasks.length, (index) => tasks[index]['isCompleted'] ?? false);
+        isLoading = false;
+      });
+    } catch (e) {
+      debugPrint('Error loading tasks: $e');
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _toggleTaskCompletion(int index, String taskId) async {
+    try {
+      bool success = await _taskService.toggleTaskCompletion(taskId, token);
+      debugPrint('Toggle Task Completion for taskId $taskId: $success');
+
+      if (success) {
+        setState(() {
+          _taskCompletionStatus[index] = !_taskCompletionStatus[index];
+          // Tính toán lại tỷ lệ hoàn thành sau khi cập nhật trạng thái
+        });
+      }
+    } catch (e) {
+      debugPrint('Error toggling task completion: $e');
+    }
+  }
+
+// Tính toán tỷ lệ hoàn thành
+  double _calculateCompletionRate() {
+    int totalTasks = tasks.length; // Tổng số nhiệm vụ
+    int completedTasks = _taskCompletionStatus.where((status) => status == true).length; // Nhiệm vụ đã hoàn thành
+    return totalTasks > 0 ? completedTasks / totalTasks : 0.0; // Tỷ lệ hoàn thành
+  }
+
 
   @override
   Widget build(BuildContext context) {
+    double completionRate = _calculateCompletionRate(); // Tính toán tỷ lệ hoàn thành
+    int totalTasks = tasks.length; // Tổng số nhiệm vụ
+    int completedTasks = _taskCompletionStatus.where((status) => status == true).length;
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: SingleChildScrollView(
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator()) // Hiển thị vòng quay trong khi loading
+          : SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -29,10 +108,19 @@ class _MytaskScreenState extends State<MytaskScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const SizedBox(height: 20),
-                  Image.asset(
-                    'assets/logo.png',
-                    width: 150,
-                    height: 150,
+                  GestureDetector(
+                    onTap: () {
+                      // Điều hướng về trang HomePage
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => HomePage()),
+                      );
+                    },
+                    child: Image.asset(
+                      'assets/logo.png',
+                      width: 150,
+                      height: 150,
+                    ),
                   ),
                   const SizedBox(height: 5),
                   const Text(
@@ -42,6 +130,7 @@ class _MytaskScreenState extends State<MytaskScreen> {
                 ],
               ),
             ),
+
             const SizedBox(height: 10),
             const Text(
               'Be productive today!!!',
@@ -61,135 +150,117 @@ class _MytaskScreenState extends State<MytaskScreen> {
               ),
             ),
             const SizedBox(height: 10),
+
             Container(
-              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.orange[200],
+                color: Colors.orange[100], // Màu nền
                 borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.2),
-                    spreadRadius: 2,
-                    blurRadius: 5,
-                    offset: Offset(0, 3),
-                  ),
-                ],
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Task progress',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    '40/40 tasks done',
-                    style: TextStyle(fontSize: 15),
-                  ),
-                  const SizedBox(height: 0),
-                  Align(
-                    alignment: Alignment.center,
-                    child: Stack(
-                      alignment: Alignment.centerRight,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          width: 100,
-                          height: 100,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.white,
-                            border: Border.all(color: Colors.green, width: 5),
-                          ),
+                        Text(
+                          'Task progress',
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                         ),
-                        Align(
-                          alignment: Alignment(0.9, 0),
-                          child: const Text(
-                            '100%',
-                            style: TextStyle(
-                              fontSize: 25,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                          ),
+                        SizedBox(height: 10),
+                        Text(
+                          '$completedTasks/$totalTasks tasks done',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        SizedBox(height: 10),
+                        Text(
+                          formattedDate,
+                          style: TextStyle(fontSize: 14, color: Colors.grey[700]),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
+                  const SizedBox(width: 20),
+
+                  CircularPercentIndicator(
+                    radius: 80.0,
+                    lineWidth: 10.0,
+                    animation: true,
+                    percent: completionRate,
+                    center: Text(
+                      "${(completionRate * 100).toStringAsFixed(1)}%",
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                     ),
-                    child: const Text(
-                      'June 2',
-                      style:
-                          TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                    ),
+                    progressColor: Colors.green,
+                    backgroundColor: Colors.grey,
+                    circularStrokeCap: CircularStrokeCap.round,
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 50),
+
             const Text(
               'My tasks',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 0),
+            const SizedBox(height: 10),
             Column(
-              children: [
-                _taskItem('Chạy sự kiện', 0),
-                _taskItem('Đi mua đồ', 1),
-                _taskItem('Học thiết kế', 2),
-              ],
+              children: tasks.isNotEmpty
+                  ? tasks.asMap().entries.map((entry) {
+                int index = entry.key;
+                Map<String, dynamic> task = entry.value;
+
+                return _taskItem(task['title'] ?? 'Untitled Task', index, task['taskId'] ?? '');
+              }).toList()
+                  : [const Text('No tasks available')],
             ),
+            const SizedBox(height: 20),
+
+            // Khung màu cam cho biểu đồ hoàn thành
+
             const SizedBox(height: 20),
           ],
         ),
       ),
-    bottomNavigationBar: CustomBottomBar(
-      onFirstButtonPressed: () {
-        // Handle first button press
-      },
-      onSecondButtonPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => ToDoListPage()),
-        );
-      },
-      onEventButtonPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => EventPage(selectedDate: DateTime.now())),
-        );
-      },
-      onFourthButtonPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => FeedBird(), // Truyền selectedDate
-          ),
-        );
-      },
-      onSettingsButtonPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => SettingsScreen()),
-        );
-      },
-    ),
+      bottomNavigationBar: CustomBottomBar(
+        onFirstButtonPressed: () {},
+        onSecondButtonPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ToDoListPage()),
+          );
+        },
+        onEventButtonPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => EventPage(selectedDate: DateTime.now())),
+          );
+        },
+        onFourthButtonPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => FeedBird()),
+          );
+        },
+        onSettingsButtonPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => SettingsScreen()),
+          );
+        },
+      ),
     );
   }
 
-  Widget _taskItem(String title, int index) {
+
+  // Widget cho mỗi task
+  Widget _taskItem(String title, int index, String taskId) {
+    debugPrint('Task Item: title=$title, index=$index, taskId=$taskId');
+
     return GestureDetector(
       onTap: () {
-        setState(() {
-          _taskCompletionStatus[index] = !_taskCompletionStatus[index];
-        });
+        _toggleTaskCompletion(index, taskId);
       },
       child: Container(
         padding: const EdgeInsets.all(16),
@@ -216,8 +287,7 @@ class _MytaskScreenState extends State<MytaskScreen> {
                   decoration: _taskCompletionStatus[index]
                       ? TextDecoration.lineThrough
                       : null,
-                  color:
-                      _taskCompletionStatus[index] ? Colors.grey : Colors.black,
+                  color: _taskCompletionStatus[index] ? Colors.grey : Colors.black,
                 ),
               ),
             ),

@@ -21,8 +21,8 @@ class _ToDoListPageState extends State<ToDoListPage> {
   bool _isLoading = false;
 
   // Màu đồng bộ
-  final Color primaryColor = Colors.green;
-  final Color secondaryColor = Colors.orangeAccent;
+  final Color primaryColor = Color(0xFFFFA965);
+  final Color secondaryColor = Color(0xFFFFA965);
   final Color completedTaskColor = Color(0xFFFCE4EC);
 
   @override
@@ -188,7 +188,7 @@ class _ToDoListPageState extends State<ToDoListPage> {
                         ],
                         border: Border(
                           left: BorderSide(
-                            color: secondaryColor,
+                            color: _getPriorityColor(task['priority']), // Sử dụng hàm để lấy màu sắc ưu tiên
                             width: 5,
                           ),
                         ),
@@ -213,7 +213,7 @@ class _ToDoListPageState extends State<ToDoListPage> {
                                     fontSize: 16,
                                   ),
                                   maxLines: 1,
-                                  overflow: TextOverflow.ellipsis, // Cắt bớt nếu quá dài
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                                 SizedBox(height: 4),
                                 Text(
@@ -222,8 +222,8 @@ class _ToDoListPageState extends State<ToDoListPage> {
                                     color: Colors.grey[600],
                                     fontSize: 14,
                                   ),
-                                  maxLines: 2, // Giới hạn số dòng của mô tả
-                                  overflow: TextOverflow.ellipsis, // Cắt bớt nếu quá dài
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ],
                             ),
@@ -244,9 +244,7 @@ class _ToDoListPageState extends State<ToDoListPage> {
                                       setState(() {
                                         task['isCompleted'] = !task['isCompleted'];
                                       });
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(content: Text('Trạng thái task đã được cập nhật.')),
-                                      );
+
                                     }
                                   }
                                 } catch (e) {
@@ -272,7 +270,10 @@ class _ToDoListPageState extends State<ToDoListPage> {
         );
       },
     );
+
+
   }
+
 
 
 
@@ -321,4 +322,22 @@ class _ToDoListPageState extends State<ToDoListPage> {
       ),
     );
   }
+  Color _getPriorityColor(String priority) {
+    String normalizedPriority = priority.toLowerCase().trim();
+
+    switch (normalizedPriority) {
+      case 'quan trọng':
+      case 'quan trọng':
+        return Colors.red;
+      case 'bình thường':
+      case 'bình thường':
+        return Colors.blue;
+      case 'thường':
+      case 'thường':
+        return Colors.green;
+      default:
+        return Colors.grey;
+    }
+  }
+
 }

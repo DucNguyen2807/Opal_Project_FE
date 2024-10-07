@@ -15,12 +15,13 @@ class AddNewTaskPage1 extends StatefulWidget {
 
 class _AddNewTaskPageState1 extends State<AddNewTaskPage1> {
   final _formKey = GlobalKey<FormState>();
-  TextEditingController _titleController = TextEditingController();
-  TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+
   DateTime _dueDate = DateTime.now();
   TimeOfDay _time = TimeOfDay(hour: 9, minute: 0);
   String? _level;
-  TaskService _taskService = TaskService(); // Tạo đối tượng TaskService
+  final TaskService _taskService = TaskService();
 
   Future<void> _selectDueDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -54,7 +55,6 @@ class _AddNewTaskPageState1 extends State<AddNewTaskPage1> {
       final token = prefs.getString('token') ?? '';
 
       if (token.isNotEmpty) {
-        // Chuyển `TimeOfDay` thành định dạng 24 giờ HH:mm:ss (API chỉ nhận 24 giờ)
         final now = DateTime.now();
         final taskDateTime = DateTime(now.year, now.month, now.day, _time.hour, _time.minute);
         String formattedTime = DateFormat('HH:mm:ss').format(taskDateTime);
@@ -64,20 +64,19 @@ class _AddNewTaskPageState1 extends State<AddNewTaskPage1> {
           description: _descriptionController.text,
           priority: _level!,
           dueDate: DateFormat('yyyy-MM-dd').format(_dueDate),
-          timeTask: formattedTime,  // Gửi thời gian theo định dạng 24 giờ
+          timeTask: formattedTime,
         );
 
         bool success = await _taskService.createTask(newTask, token);
 
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(success ? 'Tạo nhiệm vụ thành công!' : 'Tạo nhiệm vụ thất bại.'),
+          ),
+        );
+
         if (success) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Tạo nhiệm vụ thành công!')),
-          );
-          Navigator.pop(context, true);  // Trả về true khi tạo thành công
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Tạo nhiệm vụ thất bại.')),
-          );
+          Navigator.pop(context, true);
         }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -87,12 +86,10 @@ class _AddNewTaskPageState1 extends State<AddNewTaskPage1> {
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFFFE29A), // Màu nền toàn màn hình
+      backgroundColor: Color(0xFFFFE29A),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -100,164 +97,191 @@ class _AddNewTaskPageState1 extends State<AddNewTaskPage1> {
             key: _formKey,
             child: ListView(
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.arrow_back, color: Colors.green),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                    ),
-                    SizedBox(width: 50),
-                    Text(
-                      'ADD NEW TASK',
-                      style: TextStyle(
-                        fontSize: 24.0,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.green,
-                      ),
-                    ),
-                  ],
-                ),
+                _buildHeader(),
                 const SizedBox(height: 16),
-
-                // Tiêu đề (Title)
-                Text(
-                  'Title',
-                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                TextFormField(
-                  controller: _titleController,
-                  decoration: InputDecoration(
-                    hintText: 'Title of task',
-                    hintStyle: TextStyle(color: Colors.white),
-                    filled: true,
-                    fillColor: Color(0xFFFFA965), // Màu cam
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20.0),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a title';
-                    }
-                    return null;
-                  },
-                ),
+                _buildTextField('Title', _titleController, 'Title of task', 'Please enter a title'),
                 const SizedBox(height: 16),
-
-                // Mô tả (Description)
-                Text(
-                  'Description',
-                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                TextFormField(
-                  controller: _descriptionController,
-                  maxLines: 3,
-                  decoration: InputDecoration(
-                    hintText: 'Content',
-                    hintStyle: TextStyle(color: Colors.white),
-                    filled: true,
-                    fillColor: Color(0xFFFFA965), // Màu cam
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20.0),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
+                _buildTextField('Description', _descriptionController, 'Content', null, maxLines: 3),
                 const SizedBox(height: 16),
-
-                // Chọn ngày (Due Date)
-                Text(
-                  'Due Date',
-                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                ListTile(
-                  title: Text(
-                    '${DateFormat('dd/MM/yyyy').format(_dueDate)}',
-                    style: TextStyle(color: Colors.black), // Màu đen
-                  ),
-                  trailing: Icon(Icons.calendar_today, color: Colors.green),
-                  onTap: () => _selectDueDate(context),
-                ),
+                _buildDatePicker(),
                 const SizedBox(height: 16),
-
-                // Chọn thời gian (Time)
-                Text(
-                  'Time',
-                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                ListTile(
-                  title: Text(
-                    '${_time.format(context)}',
-                    style: TextStyle(color: Colors.black), // Màu đen
-                  ),
-                  trailing: Icon(Icons.access_time, color: Colors.green),
-                  onTap: () => _selectTime(context),
-                ),
+                _buildTimePicker(),
                 const SizedBox(height: 16),
-
-                // Mức độ quan trọng (Level)
-                Text(
-                  'Level',
-                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                DropdownButtonFormField<String>(
-                  value: _level,
-                  items: ['Important', 'Normal', 'Remember']
-                      .map((level) => DropdownMenuItem(
-                    child: Text(level),
-                    value: level,
-                  ))
-                      .toList(),
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: Color(0xFFFFA965), // Màu cam
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20.0),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                  onChanged: (value) {
-                    setState(() {
-                      _level = value;
-                    });
-                  },
-                  validator: (value) {
-                    if (value == null) {
-                      return 'Please select a level';
-                    }
-                    return null;
-                  },
-                ),
+                _buildLevelDropdown(),
                 const SizedBox(height: 24),
-
-                // Nút xác nhận
-                Center(
-                  child: ElevatedButton(
-                    onPressed: _createNewTask,
-                    child: Text('Xác nhận'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFFFFA965),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                      ),
-                      padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                      textStyle: TextStyle(fontSize: 18.0),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 100),
+                _buildConfirmButton(),
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.green),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        SizedBox(width: 50),
+        Text(
+          'ADD NEW TASK',
+          style: TextStyle(
+            fontFamily: 'Arista',
+            fontSize: 35.0,
+            fontWeight: FontWeight.bold,
+            color: Colors.green,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTextField(String label, TextEditingController controller, String hint, String? errorText, {int maxLines = 1}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontFamily: 'Arista',
+            fontSize: 25,
+            color: Colors.black,
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextFormField(
+          controller: controller,
+          maxLines: maxLines,
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: TextStyle(color: Colors.white, fontFamily: 'KeepCalm'),
+            filled: true,
+            fillColor: Color(0xFFFFA965),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(20.0),
+              borderSide: BorderSide.none,
+            ),
+          ),
+          validator: (value) => (errorText != null && (value == null || value.isEmpty)) ? errorText : null,
+          style: TextStyle(fontFamily: 'Arista'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDatePicker() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Due Date',
+          style: TextStyle(fontFamily: 'Arista', fontSize: 25, color: Colors.black),
+        ),
+        const SizedBox(height: 8),
+        GestureDetector(
+          onTap: () => _selectDueDate(context),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Color(0xFFFFA965),
+              borderRadius: BorderRadius.circular(20.0),
+            ),
+            child: ListTile(
+              title: Text(
+                '${DateFormat('dd/MM/yyyy').format(_dueDate)}',
+                style: TextStyle(fontFamily: 'KeepCalm', color: Colors.white),
+              ),
+              trailing: Icon(Icons.calendar_today, color: Colors.green),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTimePicker() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Time',
+          style: TextStyle(fontFamily: 'Arista', fontSize: 25, color: Colors.black),
+        ),
+        const SizedBox(height: 8),
+        GestureDetector(
+          onTap: () => _selectTime(context),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Color(0xFFFFA965),
+              borderRadius: BorderRadius.circular(20.0),
+            ),
+            child: ListTile(
+              title: Text(
+                '${_time.format(context)}',
+                style: TextStyle(fontSize: 15, fontFamily: 'KeepCalm', color: Colors.white),
+              ),
+              trailing: Icon(Icons.access_time, color: Colors.green),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLevelDropdown() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Level',
+          style: TextStyle(fontFamily: 'Arista', fontSize: 25, color: Colors.black),
+        ),
+        const SizedBox(height: 8),
+        DropdownButtonFormField<String>(
+          value: _level,
+          items: ['Quan trọng', 'Bình thường', 'Thường']
+              .map((level) => DropdownMenuItem(
+            child: Text(level, style: TextStyle(fontFamily: 'Arista', color: Colors.white)),
+            value: level,
+          ))
+              .toList(),
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Color(0xFFFFA965),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(20.0),
+              borderSide: BorderSide.none,
+            ),
+          ),
+          onChanged: (value) {
+            setState(() {
+              _level = value;
+            });
+          },
+          validator: (value) => (value == null) ? 'Please select a level' : null,
+          style: TextStyle(fontFamily: 'Arista', color: Colors.white),
+          dropdownColor: Color(0xFFFFA965),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildConfirmButton() {
+    return Center(
+      child: ElevatedButton(
+        onPressed: _createNewTask,
+        child: Text('Xác nhận', style: TextStyle(fontFamily: 'Arista')),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Color(0xFFFFA965),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30.0),
+          ),
+          padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
         ),
       ),
     );

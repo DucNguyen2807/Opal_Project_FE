@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:opal_project/ui/sign-in/login.dart';
 import '../../services/UserService/AuthService.dart';
@@ -11,7 +12,8 @@ class OpalRegisterScreen extends StatefulWidget {
 
 class _OpalRegisterScreenState extends State<OpalRegisterScreen> {
   final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _fullnameController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
   final AuthService _authService = AuthService();
 
   bool _isLoading = false;
@@ -26,7 +28,8 @@ class _OpalRegisterScreenState extends State<OpalRegisterScreen> {
     try {
       final response = await _authService.register(
         _usernameController.text,
-        _passwordController.text,
+        _fullnameController.text,
+        _phoneController.text,
       );
 
       print('Response Status: ${response['status']}');
@@ -55,7 +58,6 @@ class _OpalRegisterScreenState extends State<OpalRegisterScreen> {
       });
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +103,9 @@ class _OpalRegisterScreenState extends State<OpalRegisterScreen> {
                 const SizedBox(height: 20),
                 _buildTextField('Tên tài khoản', _usernameController),
                 const SizedBox(height: 16),
-                _buildTextField('Mật khẩu', _passwordController, obscureText: true),
+                _buildTextField('Họ tên', _fullnameController),
+                const SizedBox(height: 16),
+                _buildTextField('Số điện thoại', _phoneController),
                 const SizedBox(height: 16),
 
                 if (_errorMessage != null)
