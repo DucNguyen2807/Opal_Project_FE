@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1086807391591",
+    "project_id": "opal-exe",
+    "storage_bucket": "opal-exe.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1086807391591:android:4f64cfb3dd91d6cf7583c2",
+        "android_client_info": {
+          "package_name": "com.example.opal_project"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA24cdZ2-quVWD2xwoBCdLkdsL7csX2Pms"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
