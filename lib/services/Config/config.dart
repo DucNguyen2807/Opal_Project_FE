@@ -18,4 +18,8 @@ class Config {
   static const String getEventsByDateEndpoint = 'Events';
   static const String createEventEndpoint = 'Events/create-event';
   static const String deleteEventEndpoint ='Events/delete-event';
+
+  // Feed-related endpoint
+  static const String viewParrotEndpoint = 'Feed/view-parrot';
+  static const String feedParrotEndpoint = 'Feed/feed-parrot';
 }

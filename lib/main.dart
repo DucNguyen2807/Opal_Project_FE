@@ -1,10 +1,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:opal_project/ui/Notification/notification.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:opal_project/ui/landing/landing.dart';
 import 'package:opal_project/ui/theme-provider/theme.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:opal_project/ui/Notification/some_widget.dart';
 
 class MyHttpOverrides extends HttpOverrides {
   @override
@@ -14,11 +15,25 @@ class MyHttpOverrides extends HttpOverrides {
   }
 }
 
-void main() {
-  if (const bool.fromEnvironment('dart.vm.product') == false) {
-    HttpOverrides.global = MyHttpOverrides();
-  }
+// Set global HttpOverrides and Firebase initialization
+Future<void> main() async {
+  HttpOverrides.global = MyHttpOverrides();
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Firebase
+  await Firebase.initializeApp();
+
+  // Gọi hàm getDeviceToken
+  await getDeviceToken();
+
   runApp(const OpalApp());
+}
+
+// Hàm lấy Device Token từ Firebase Cloud Messaging
+Future<void> getDeviceToken() async {
+  String? token = await FirebaseMessaging.instance.getToken();
+  print("Device Token: $token");
+  // Lưu token này vào server của bạn nếu cần
 }
 
 class OpalApp extends StatelessWidget {
@@ -26,65 +41,24 @@ class OpalApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<String>(
-      future: _getToken(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return const Center(child: Text('Error loading token'));
-        } else {
-          String token = snapshot.data ?? '';
-          return MultiProvider(
-            providers: [
-              ChangeNotifierProvider(create: (context) => ThemeProvider()),
-              Provider<NotificationService>(
-                create: (context) => NotificationService(token),
+    return ChangeNotifierProvider(
+      create: (context) => ThemeProvider(),
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, child) {
+          return MaterialApp(
+            title: 'Opal Project',
+            theme: ThemeData(
+              brightness: themeProvider.isDarkMode ? Brightness.dark : Brightness.light,
+              primarySwatch: Colors.green,
+              scaffoldBackgroundColor: const Color(0xFFFFF1AD),
+              appBarTheme: AppBarTheme(
+                backgroundColor: themeProvider.isDarkMode ? Colors.grey[850] : const Color(0xFFF5EAC9),
+                elevation: 0,
               ),
-            ],
-            child: Consumer<ThemeProvider>(
-              builder: (context, themeProvider, child) {
-                final notificationService = Provider.of<NotificationService>(context, listen: false);
-                notificationService.onReceiveNotification((message) => _handleNotification(context, message));
-                notificationService.start();
-                return MaterialApp(
-                  title: 'Opal Project',
-                  theme: ThemeData(
-                    brightness: themeProvider.isDarkMode ? Brightness.dark : Brightness.light,
-                    primarySwatch: Colors.green,
-                    scaffoldBackgroundColor: const Color(0xFFFFF1AD),
-                    appBarTheme: AppBarTheme(
-                      backgroundColor: themeProvider.isDarkMode ? Colors.grey[850] : const Color(0xFFF5EAC9),
-                      elevation: 0,
-                    ),
-                  ),
-                  home: const OpalLandingScreen(),
-                );
-              },
             ),
+            home: OpalLandingScreen(),
           );
-        }
-      },
-    );
-  }
-
-  Future<String> _getToken() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('token') ?? '';
-  }
-
-  void _handleNotification(BuildContext context, String message) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Thông báo"),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text("OK"),
-          ),
-        ],
+        },
       ),
     );
   }
