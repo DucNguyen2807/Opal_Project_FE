@@ -1,5 +1,5 @@
 class Config {
-  static const String baseUrl = 'https://10.0.2.2:7203/api/';
+  static const String baseUrl = 'https://opal.io.vn/api/';
 
   // User-related endpoints
   static const String loginEndpoint = 'User/login';

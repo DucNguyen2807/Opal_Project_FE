@@ -49,9 +49,12 @@ class TaskService extends BaseApiService {
 
     if (response.statusCode == 200) {
       try {
-        final data = List<Map<String, dynamic>>.from(jsonDecode(response.body));
-        print('Decoded data: $data');
-        return data;
+        // Giải mã phản hồi JSON thành danh sách tác vụ
+        final List<dynamic> jsonResponse = jsonDecode(response.body);
+        final List<Map<String, dynamic>> tasks = List<Map<String, dynamic>>.from(jsonResponse);
+
+        print('Decoded tasks: $tasks');
+        return tasks;
       } catch (e) {
         print('Failed to decode JSON: $e');
         throw Exception('Failed to decode tasks data');
@@ -60,6 +63,7 @@ class TaskService extends BaseApiService {
       throw Exception('Failed to load tasks: ${response.statusCode} - ${response.body}');
     }
   }
+
 
 
   // Phương thức chuyển đổi trạng thái hoàn thành của task
