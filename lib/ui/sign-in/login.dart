@@ -194,7 +194,7 @@ class _OpalLoginScreenState extends State<OpalLoginScreen> {
                 ElevatedButton(
                   onPressed: _login,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFFA770),
+                    backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                     padding: const EdgeInsets.symmetric(vertical: 16.0),
                   ),
                   child: const Text('Đăng nhập'),

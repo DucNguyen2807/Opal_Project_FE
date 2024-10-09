@@ -11,7 +11,7 @@ class OpalForgotPasswordScreen extends StatelessWidget {
     final AuthService authService = AuthService();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFFEAC9),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(

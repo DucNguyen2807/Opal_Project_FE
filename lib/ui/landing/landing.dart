@@ -27,17 +27,27 @@ class OpalLandingScreen extends StatefulWidget {
 class _OpalLandingScreenState extends State<OpalLandingScreen> {
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    double imageHeight = screenHeight < 600 ? screenHeight * 0.6 : screenHeight * 0.8;
+    double imageWidth = screenWidth * 1.5;
+    
+    double logoHeight = screenWidth > 600 ? 150 : 120;
+
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Stack(
           children: [
             Positioned(
-              top: 100,
-              left: -90,
+              top: screenHeight * 0.1,
+              right: -screenWidth * 0.4,
               child: Image.asset(
                 'assets/bird.png',
-                height: 700,
+                height: imageHeight,
+                width: imageWidth,
+                fit: BoxFit.contain,
               ),
             ),
             Padding(
@@ -51,7 +61,7 @@ class _OpalLandingScreenState extends State<OpalLandingScreen> {
                       padding: const EdgeInsets.only(top: 16.0),
                       child: Image.asset(
                         'assets/logo.png',
-                        height: 120,
+                        height: logoHeight,
                       ),
                     ),
                   ),

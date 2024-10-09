@@ -29,12 +29,12 @@ class _FeedBirdState extends State<FeedBird> with SingleTickerProviderStateMixin
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: Duration(seconds: 0),
+      duration: Duration(seconds: 1),
     );
 
     _animation = Tween<Offset>(
       begin: Offset(0, 0),
-      end: Offset(0, -2),
+      end: Offset(0, -0.5),
     ).animate(CurvedAnimation(
       parent: _controller,
       curve: Curves.easeInOut,
@@ -68,7 +68,6 @@ class _FeedBirdState extends State<FeedBird> with SingleTickerProviderStateMixin
         isLoading = false;
       });
       print('Error fetching parrot data: $e');
-      // Hiển thị thông báo lỗi bằng SnackBar
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Lỗi khi tải dữ liệu: $e')),
       );
@@ -199,7 +198,7 @@ class _FeedBirdState extends State<FeedBird> with SingleTickerProviderStateMixin
                         try {
                           setState(() {
                             isFeeding = true;
-                            _controller.forward();
+                            _controller.forward(from: 0);
                           });
 
                           await _feedService.feedParrot(1);
@@ -212,7 +211,6 @@ class _FeedBirdState extends State<FeedBird> with SingleTickerProviderStateMixin
                           );
                         } finally {
                           setState(() {
-                            isFeeding = false;
                           });
                         }
                       },

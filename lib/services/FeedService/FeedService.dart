@@ -46,7 +46,7 @@ class Feedservice extends BaseApiService {
         'Authorization': 'Bearer $token',
       },
       body: jsonEncode({
-        'feedAmount': feedAmount, // Mặc định feedAmount = 1
+        'feedAmount': feedAmount,
       }),
     );
 

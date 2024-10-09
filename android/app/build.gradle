@@ -1,14 +1,20 @@
 plugins {
     id "com.android.application"
     id "kotlin-android"
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id "dev.flutter.flutter-gradle-plugin"
     id "com.google.gms.google-services" // Apply Google services plugin
 }
 
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 android {
     namespace = "com.example.opal_project"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 34 // Cập nhật lên phiên bản SDK mới nhất
+
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -17,31 +23,39 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8
+        jvmTarget = '1.8' // Sử dụng chuỗi thay vì JavaVersion
     }
 
     defaultConfig {
         applicationId = "com.example.opal_project"
-        minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        minSdk = 21 // Bạn có thể điều chỉnh theo yêu cầu của ứng dụng
+        targetSdk = 34 // Cập nhật lên phiên bản SDK mới nhất
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        release {
+            keyAlias = keystoreProperties['keyAlias']
+            keyPassword = keystoreProperties['keyPassword']
+            storeFile = keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+            storePassword = keystoreProperties['storePassword']
+        }
+    }
+
     buildTypes {
         release {
-            signingConfig = signingConfigs.debug
-            // Enable shrinking, obfuscation, and optimization for release builds
-            minifyEnabled true
-            // Add proguard rules for Firebase if required
+            signingConfig = signingConfigs.release
+            minifyEnabled true // Kích hoạt shrinking, obfuscation và tối ưu hóa cho bản phát hành
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 }
 
 dependencies {
-    implementation platform('com.google.firebase:firebase-bom:32.1.1') // Firebase BOM (Adjust to the latest stable version)
-    implementation 'com.google.firebase:firebase-messaging'            // Firebase Messaging
+    implementation platform('com.google.firebase:firebase-bom:32.1.1') // Firebase BOM (Điều chỉnh phiên bản mới nhất)
+    implementation 'com.google.firebase:firebase-messaging' // Firebase Messaging
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.8.0" // Đảm bảo rằng bạn đã thêm phụ thuộc này
 }
 
 // Apply the Google services plugin after all the other plugins
