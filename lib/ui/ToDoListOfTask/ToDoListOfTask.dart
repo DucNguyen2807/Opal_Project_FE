@@ -169,7 +169,7 @@ class _AddNewTaskPageState1 extends State<AddNewTaskPage1> {
             ),
           ),
           validator: (value) => (errorText != null && (value == null || value.isEmpty)) ? errorText : null,
-          style: TextStyle(fontFamily: 'Arista'),
+          style: TextStyle(fontFamily: 'KeepCalm', color: Colors.white), // Đặt màu cho chữ
         ),
       ],
     );
@@ -246,13 +246,16 @@ class _AddNewTaskPageState1 extends State<AddNewTaskPage1> {
           value: _level,
           items: ['Quan trọng', 'Bình thường', 'Thường']
               .map((level) => DropdownMenuItem(
-            child: Text(level, style: TextStyle(fontFamily: 'Arista', color: Colors.white)),
+            child: Text(
+              level,
+              style: TextStyle(fontFamily: 'Arista', color: Colors.white), // Màu chữ
+            ),
             value: level,
           ))
               .toList(),
           decoration: InputDecoration(
             filled: true,
-            fillColor: Color(0xFFFFA965),
+            fillColor: Color(0xFFFFA965), // Màu nền cho ô input
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(20.0),
               borderSide: BorderSide.none,
@@ -264,24 +267,22 @@ class _AddNewTaskPageState1 extends State<AddNewTaskPage1> {
             });
           },
           validator: (value) => (value == null) ? 'Please select a level' : null,
-          style: TextStyle(fontFamily: 'Arista', color: Colors.white),
-          dropdownColor: Color(0xFFFFA965),
+          dropdownColor: Color(0xFFFFA965), // Màu nền cho khung dropdown
         ),
       ],
     );
   }
 
+
   Widget _buildConfirmButton() {
-    return Center(
-      child: ElevatedButton(
-        onPressed: _createNewTask,
-        child: Text('Xác nhận', style: TextStyle(fontFamily: 'Arista')),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Color(0xFFFFA965),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30.0),
-          ),
-          padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+    return ElevatedButton(
+      onPressed: _createNewTask,
+      child: Text('Confirm'),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.green,
+        padding: EdgeInsets.symmetric(vertical: 15),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.0),
         ),
       ),
     );

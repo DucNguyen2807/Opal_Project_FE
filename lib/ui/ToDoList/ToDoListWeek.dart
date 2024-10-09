@@ -156,7 +156,8 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
         title: Text(
           'ADD NEW EVENT',
           style: TextStyle(
-            fontSize: 24.0,
+            fontFamily: 'Arista', // Set font to Arista
+            fontSize: 40,
             fontWeight: FontWeight.bold,
             color: Colors.green,
           ),
@@ -175,14 +176,18 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
                 // Title input
                 Text(
                   'Title',
-                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontFamily: 'Arista', // Set font to Arista
+                    color: Colors.black,
+                    fontSize: 25
+                  ),
                 ),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _titleController,
                   decoration: InputDecoration(
                     hintText: 'Title of event',
-                    hintStyle: TextStyle(color: Colors.white),
+                    hintStyle: TextStyle(color: Colors.white, fontFamily: 'KeepCalm'),
                     filled: true,
                     fillColor: Color(0xFFFFA965),
                     border: OutlineInputBorder(
@@ -201,7 +206,11 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
 
                 Text(
                   'Description',
-                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontFamily: 'Arista', // Set font to Arista
+                    color: Colors.black,
+                      fontSize: 25
+                  ),
                 ),
                 const SizedBox(height: 8),
                 TextFormField(
@@ -209,7 +218,7 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
                   maxLines: 3,
                   decoration: InputDecoration(
                     hintText: 'Content',
-                    hintStyle: TextStyle(color: Colors.white),
+                    hintStyle: TextStyle(color: Colors.white, fontFamily: 'KeepCalm'),
                     filled: true,
                     fillColor: Color(0xFFFFA965),
                     border: OutlineInputBorder(
@@ -220,67 +229,98 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
                 ),
                 const SizedBox(height: 16),
 
+                // Due Date
+                const SizedBox(height: 16),
                 Text(
                   'Due Date',
-                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontFamily: 'Arista',
+                    color: Colors.black,
+                    fontSize: 25,
+                  ),
                 ),
                 const SizedBox(height: 8),
-                ListTile(
-                  title: Text(
-                    '${DateFormat('dd/MM/yyyy').format(_dueDate)}',
-                    style: TextStyle(color: Colors.black),
+                Container(
+                  padding: const EdgeInsets.all(4.0),
+                  decoration: BoxDecoration(
+                    color: Color(0xFFFFA965), // Màu cam
+                    borderRadius: BorderRadius.circular(20.0),
                   ),
-                  trailing: Icon(Icons.calendar_today, color: Colors.green),
-                  onTap: () => _selectDueDate(context),
+                  child: ListTile(
+                    title: Text(
+                      '${DateFormat('dd/MM/yyyy').format(_dueDate)}',
+                      style: TextStyle(color: Colors.white, fontFamily: 'KeepCalm'), // Font trắng
+                    ),
+                    trailing: Icon(Icons.calendar_today, color: Colors.green),
+                    onTap: () => _selectDueDate(context),
+                  ),
                 ),
                 const SizedBox(height: 16),
 
-                // Start and end time selection
+
+                // Start and End Time
                 Text(
                   'Start and End Time',
-                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontFamily: 'Arista',
+                    color: Colors.black,
+                    fontSize: 25,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Row(
                   children: [
                     Expanded(
-                      child: ListTile(
-                        title: Text(
-                          'Start: ${_startTime.format(context)}',
-                          style: TextStyle(color: Colors.black),
+                      child: Container(
+                        padding: const EdgeInsets.all(5.0),
+                        decoration: BoxDecoration(
+                          color: Color(0xFFFFA965),
+                          borderRadius: BorderRadius.circular(20.0),
                         ),
-                        trailing: Icon(Icons.access_time, color: Colors.green),
-                        onTap: () => _selectTime(context, true),
+                        child: ListTile(
+                          title: Text(
+                            'Start: ${_startTime.format(context)}',
+                            style: TextStyle(color: Colors.white, fontFamily: 'KeepCalm', fontSize: 11),
+                          ),
+                          trailing: Icon(Icons.access_time, color: Colors.green),
+                          onTap: () => _selectTime(context, true),
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 16), // Khoảng cách giữa hai khung
                     Expanded(
-                      child: ListTile(
-                        title: Text(
-                          'End: ${_endTime.format(context)}',
-                          style: TextStyle(color: Colors.black),
+                      child: Container(
+                        padding: const EdgeInsets.all(5.0),
+                        decoration: BoxDecoration(
+                          color: Color(0xFFFFA965),
+                          borderRadius: BorderRadius.circular(20.0),
                         ),
-                        trailing: Icon(Icons.access_time, color: Colors.green),
-                        onTap: () => _selectTime(context, false),
+                        child: ListTile(
+                          title: Text(
+                            'End: ${_endTime.format(context)}',
+                            style: TextStyle(color: Colors.white, fontFamily: 'KeepCalm', fontSize: 11),
+                          ),
+                          trailing: Icon(Icons.access_time, color: Colors.green),
+                          onTap: () => _selectTime(context, false),
+                        ),
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 16),
 
+
+                // Priority dropdown
                 Text(
                   'Priority',
-                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontFamily: 'Arista', // Set font to Arista
+                    color: Colors.black,
+                    fontSize: 25,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
-                  value: _priority,
-                  items: ['Quan trọng', 'Bình thường', 'Thường']
-                      .map((priority) => DropdownMenuItem(
-                    child: Text(priority),
-                    value: priority,
-                  ))
-                      .toList(),
                   decoration: InputDecoration(
                     filled: true,
                     fillColor: Color(0xFFFFA965),
@@ -289,27 +329,34 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
                       borderSide: BorderSide.none,
                     ),
                   ),
+                  value: _priority,
+                  hint: Text('Select Priority', style: TextStyle(color: Colors.orange)),
+                  dropdownColor: Color(0xFFFFA965), // Đặt màu cho menu dropdown
+                  items: [
+                    DropdownMenuItem(child: Text('Quan trọng', style: TextStyle(color: Colors.white)), value: 'Quan trọng'),
+                    DropdownMenuItem(child: Text('Bình thường', style: TextStyle(color: Colors.white)), value: 'Bình thường'),
+                    DropdownMenuItem(child: Text('Thường', style: TextStyle(color: Colors.white)), value: 'Thường'),
+                  ],
                   onChanged: (value) {
                     setState(() {
                       _priority = value;
                     });
                   },
-                  validator: (value) {
-                    if (value == null) {
-                      return 'Please select a priority';
-                    }
-                    return null;
-                  },
                 ),
                 const SizedBox(height: 16),
+
 
                 // Recurring switch
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Recurring',
-                      style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                      'Recurring Event',
+                      style: TextStyle(
+                        fontFamily: 'Arista', // Set font to Arista
+                        color: Colors.black,
+                          fontSize: 22
+                      ),
                     ),
                     Switch(
                       value: _recurring,
@@ -318,22 +365,27 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
                           _recurring = value;
                         });
                       },
+                      activeColor: Colors.green,
                     ),
                   ],
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
 
-                Center(
-                  child: ElevatedButton(
-                    onPressed: _submitForm,
-                    child: Text('Xác nhận'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFFFFA965),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                      ),
-                      padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                      textStyle: TextStyle(fontSize: 18.0),
+                // Submit button
+                ElevatedButton(
+                  onPressed: _submitForm,
+                  child: Text(
+                    'Save Event',
+                    style: TextStyle(
+                      fontFamily: 'KeepCalm', // Set font to KeepCalm
+                      fontSize: 18,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    padding: EdgeInsets.symmetric(vertical: 12.0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.0),
                     ),
                   ),
                 ),
