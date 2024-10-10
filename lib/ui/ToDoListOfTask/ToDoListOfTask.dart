@@ -133,7 +133,7 @@ class _AddNewTaskPageState1 extends State<AddNewTaskPage1> {
           'ADD NEW TASK',
           style: TextStyle(
             fontFamily: 'Arista',
-            fontSize: 35.0,
+            fontSize: 27.0,
             fontWeight: FontWeight.bold,
             color: Colors.green,
           ),
@@ -150,7 +150,7 @@ class _AddNewTaskPageState1 extends State<AddNewTaskPage1> {
           label,
           style: TextStyle(
             fontFamily: 'Arista',
-            fontSize: 25,
+            fontSize: 21,
             color: Colors.black,
           ),
         ),
@@ -181,9 +181,9 @@ class _AddNewTaskPageState1 extends State<AddNewTaskPage1> {
       children: [
         Text(
           'Due Date',
-          style: TextStyle(fontFamily: 'Arista', fontSize: 25, color: Colors.black),
+          style: TextStyle(fontFamily: 'Arista', fontSize: 21, color: Colors.black),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 5),
         GestureDetector(
           onTap: () => _selectDueDate(context),
           child: Container(
@@ -210,9 +210,9 @@ class _AddNewTaskPageState1 extends State<AddNewTaskPage1> {
       children: [
         Text(
           'Time',
-          style: TextStyle(fontFamily: 'Arista', fontSize: 25, color: Colors.black),
+          style: TextStyle(fontFamily: 'Arista', fontSize: 21, color: Colors.black),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 5),
         GestureDetector(
           onTap: () => _selectTime(context),
           child: Container(
@@ -239,9 +239,9 @@ class _AddNewTaskPageState1 extends State<AddNewTaskPage1> {
       children: [
         Text(
           'Level',
-          style: TextStyle(fontFamily: 'Arista', fontSize: 25, color: Colors.black),
+          style: TextStyle(fontFamily: 'Arista', fontSize: 21, color: Colors.black),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 5),
         DropdownButtonFormField<String>(
           value: _level,
           items: ['Quan trọng', 'Bình thường', 'Thường']

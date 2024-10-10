@@ -20,14 +20,14 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
       backgroundColor: Color(0xFFFFE29A), // Màu nền toàn màn hình
       appBar: AppBar(
         title: Container(
-          alignment: Alignment.center, // Căn giữa tiêu đề
+
           child: Text(
             'Change Password',
             style: TextStyle(
               fontFamily: 'Arista',
               color: Colors.green, // Đổi màu chữ thành xanh
               fontWeight: FontWeight.bold,
-              fontSize: 30, // Tăng kích thước chữ
+              fontSize: 27, // Tăng kích thước chữ
             ),
           ),
         ),
@@ -41,7 +41,7 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(25.0),
+        padding: const EdgeInsets.all(19.0),
         child: ListView(
           children: [
             _buildTextField('Current Password', _currentPasswordController, 'Enter your current password', Icons.lock),
@@ -63,7 +63,7 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
       children: [
         Text(
           label,
-          style: TextStyle(fontSize: 25, fontFamily: 'Arista', color: Colors.black),
+          style: TextStyle(fontSize: 20, fontFamily: 'Arista', color: Colors.black),
         ),
         SizedBox(height: 8),
         Container(

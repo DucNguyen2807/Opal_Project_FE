@@ -125,7 +125,7 @@ class _MytaskScreenState extends State<MytaskScreen> {
                   const SizedBox(height: 5),
                   const Text(
                     'Hi, Opal',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
@@ -137,19 +137,7 @@ class _MytaskScreenState extends State<MytaskScreen> {
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            TextField(
-              decoration: InputDecoration(
-                hintText: 'Search tasks',
-                fillColor: Colors.orange[100],
-                filled: true,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding: const EdgeInsets.all(16),
-              ),
-            ),
-            const SizedBox(height: 10),
+            
 
             Container(
               decoration: BoxDecoration(

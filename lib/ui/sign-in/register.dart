@@ -66,21 +66,22 @@ class _OpalRegisterScreenState extends State<OpalRegisterScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(11.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Logo
                 Align(
-                  alignment: Alignment.topCenter,
+                  alignment: Alignment.topLeft,  // Align to top-left
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16.0),
+                    padding: const EdgeInsets.symmetric(vertical: 5.0),
                     child: Image.asset(
                       'assets/logo.png',
-                      height: 100,
+                      height: 70,
                     ),
                   ),
                 ),
+
                 Align(
                   alignment: Alignment.topCenter,
                   child: Image.asset(
@@ -89,7 +90,7 @@ class _OpalRegisterScreenState extends State<OpalRegisterScreen> {
                     fit: BoxFit.contain,
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 10),
 
                 const Text(
                   'Đăng ký',
@@ -100,17 +101,17 @@ class _OpalRegisterScreenState extends State<OpalRegisterScreen> {
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 10),
                 _buildTextField('Tên tài khoản', _usernameController),
-                const SizedBox(height: 16),
+                const SizedBox(height: 10),
                 _buildTextField('Họ tên', _fullnameController),
-                const SizedBox(height: 16),
+                const SizedBox(height: 10),
                 _buildTextField('Số điện thoại', _phoneController),
-                const SizedBox(height: 16),
+                const SizedBox(height: 10),
 
                 if (_errorMessage != null)
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 16.0),
+                    padding: const EdgeInsets.only(bottom: 11.0),
                     child: Text(
                       _errorMessage!,
                       style: const TextStyle(color: Colors.red),

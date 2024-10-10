@@ -79,80 +79,82 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           },
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const SizedBox(height: 40),
-            CircleAvatar(
-              radius: 100,
-              backgroundColor: Colors.transparent,
-              backgroundImage: const AssetImage('assets/login-opal.png'),
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              'Opal',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black),
-            ),
-            const Text(
-              'Thông tin cá nhân',
-              style: TextStyle(fontSize: 16, color: Colors.black54),
-            ),
-            const SizedBox(height: 30),
-            buildLabel('Họ và tên :'),
-            buildTextField('Họ và tên của bạn', _fullNameController),
-            const SizedBox(height: 15),
-            buildLabel('Email:'),
-            buildTextField('Email', _emailController),
-            const SizedBox(height: 15),
-            buildLabel('Giới tính:'),
-            buildGenderDropdown(),
-            const SizedBox(height: 15),
-            buildLabel('Số điện thoại:'),
-            buildTextField('Số điện thoại', _phoneNumberController),
-            const SizedBox(height: 30),
-            ElevatedButton(
-              onPressed: () async {
-                try {
-                  await _authService.updateUser(
-                    _fullNameController.text,
-                    _emailController.text,
-                    _phoneNumberController.text,
-                    _selectedGender ?? 'Khác',
-                  );
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Cập nhật thành công!')),
-                  );
-                  // Quay lại trang cài đặt sau khi cập nhật thành công
-                  Navigator.pop(context, true);
-                } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Cập nhật không thành công: $e')),
-                  );
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF73A942),
-                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+      body: SingleChildScrollView( // Allow scrolling
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(height: 0),
+              CircleAvatar(
+                radius: 100,
+                backgroundColor: Colors.transparent,
+                backgroundImage: const AssetImage('assets/login-opal.png'),
               ),
-              child: const Text('Xác nhận', style: TextStyle(fontSize: 18, color: Colors.white)),
-            ),
-          ],
+              const SizedBox(height: 5),
+              const Text(
+                'Opal',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black),
+              ),
+              const Text(
+                'Thông tin cá nhân',
+                style: TextStyle(fontSize: 16, color: Colors.black54),
+              ),
+              const SizedBox(height: 5),
+              buildLabel('Họ và tên :'),
+              buildTextField('Họ và tên của bạn', _fullNameController),
+              const SizedBox(height: 5),
+              buildLabel('Email:'),
+              buildTextField('Email', _emailController),
+              const SizedBox(height: 5),
+              buildLabel('Giới tính:'),
+              buildGenderDropdown(),
+              const SizedBox(height: 5),
+              buildLabel('Số điện thoại:'),
+              buildTextField('Số điện thoại', _phoneNumberController),
+              const SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: () async {
+                  try {
+                    await _authService.updateUser(
+                      _fullNameController.text,
+                      _emailController.text,
+                      _phoneNumberController.text,
+                      _selectedGender ?? 'Khác',
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Cập nhật thành công!')),
+                    );
+                    Navigator.pop(context, true);
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Cập nhật không thành công: $e')),
+                    );
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF73A942),
+                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                ),
+                child: const Text('Xác nhận', style: TextStyle(fontSize: 18, color: Colors.white)),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
+
   Widget buildLabel(String text) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 30),
       child: Align(
         alignment: Alignment.centerLeft,
         child: Text(
           text,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
         ),
       ),
     );
