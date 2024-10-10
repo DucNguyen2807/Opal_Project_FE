@@ -55,10 +55,10 @@ class _OpalLoginScreenState extends State<OpalLoginScreen> {
                 Align(
                   alignment: Alignment.topLeft,
                   child: Padding(
-                    padding: const EdgeInsets.only(top: 16.0),
+                    padding: const EdgeInsets.only(top: 10.0),
                     child: Image.asset(
                       'assets/logo.png',
-                      height: 100,
+                      height: 80,
                     ),
                   ),
                 ),
@@ -66,10 +66,10 @@ class _OpalLoginScreenState extends State<OpalLoginScreen> {
                   alignment: Alignment.center,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 16.0),
+                      padding: const EdgeInsets.symmetric(vertical: 1.0),
                       child: Image.asset(
                         'assets/login-opal.png',
-                        height: 300,
+                        height: 170,
                         fit: BoxFit.contain,
                       ),
                     ),

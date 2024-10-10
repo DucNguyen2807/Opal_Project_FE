@@ -49,25 +49,46 @@ class CustomCalendar extends StatelessWidget {
           color: Color(0xFFF8F1FF),
           borderRadius: BorderRadius.circular(12),
         ),
-        weekendTextStyle: TextStyle(color: Colors.red),
-        defaultTextStyle: TextStyle(color: Colors.black),
+        weekendTextStyle: const TextStyle(
+          color: Colors.red,
+          fontFamily: 'KeepCalm', // Font for numbers (weekends)
+        ),
+        defaultTextStyle: const TextStyle(
+          color: Colors.black,
+          fontFamily: 'KeepCalm', // Font for numbers (weekdays)
+        ),
+        todayTextStyle: const TextStyle(
+          color: Colors.white,
+          fontFamily: 'KeepCalm', // Font for today's date
+        ),
+        selectedTextStyle: const TextStyle(
+          color: Colors.white,
+          fontFamily: 'KeepCalm', // Font for selected date
+        ),
       ),
       headerStyle: HeaderStyle(
         formatButtonVisible: false,
         titleCentered: true,
-        titleTextStyle: TextStyle(fontSize: 24, color: Color(0xFF7EBB42)),
-        leftChevronIcon: Icon(Icons.chevron_left, color: Color(0xFF7EBB42)),
-        rightChevronIcon: Icon(Icons.chevron_right, color: Color(0xFF7EBB42)),
+        titleTextStyle: const TextStyle(
+          fontSize: 24,
+          color: Color(0xFF7EBB42),
+          fontFamily: 'KeepCalm', // Font for month title
+        ),
+        leftChevronIcon: const Icon(Icons.chevron_left, color: Color(0xFF7EBB42)),
+        rightChevronIcon: const Icon(Icons.chevron_right, color: Color(0xFF7EBB42)),
       ),
       daysOfWeekStyle: DaysOfWeekStyle(
-        weekdayStyle: TextStyle(
+        weekdayStyle: const TextStyle(
           color: Color(0xFF7EBB42),
-          fontWeight: FontWeight.bold,
-        ), // Green text for weekdays
-        weekendStyle: TextStyle(
+          fontSize: 15,
+          fontFamily: 'Arista', // Font for day names (weekdays)
+        ),
+        weekendStyle: const TextStyle(
           color: Color(0xFF7EBB42),
-          fontWeight: FontWeight.bold,
-        ), // Green text for weekends
+          fontFamily: 'Arista', // Font for day names (weekends)
+          fontSize: 15,
+
+        ),
         dowTextFormatter: (date, locale) {
           List<String> dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
           return dayNames[date.weekday % 7];

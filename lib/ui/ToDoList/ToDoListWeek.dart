@@ -157,7 +157,7 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
           'ADD NEW EVENT',
           style: TextStyle(
             fontFamily: 'Arista', // Set font to Arista
-            fontSize: 40,
+            fontSize: 35,
             fontWeight: FontWeight.bold,
             color: Colors.green,
           ),
@@ -179,7 +179,7 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
                   style: TextStyle(
                     fontFamily: 'Arista', // Set font to Arista
                     color: Colors.black,
-                    fontSize: 25
+                    fontSize: 21
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -202,14 +202,14 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 13),
 
                 Text(
                   'Description',
                   style: TextStyle(
                     fontFamily: 'Arista', // Set font to Arista
                     color: Colors.black,
-                      fontSize: 25
+                      fontSize: 21
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -227,21 +227,21 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
 
                 // Due Date
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
                 Text(
                   'Due Date',
                   style: TextStyle(
                     fontFamily: 'Arista',
                     color: Colors.black,
-                    fontSize: 25,
+                    fontSize: 21,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Container(
-                  padding: const EdgeInsets.all(4.0),
+                  padding: const EdgeInsets.all(1.0),
                   decoration: BoxDecoration(
                     color: Color(0xFFFFA965), // Màu cam
                     borderRadius: BorderRadius.circular(20.0),
@@ -255,7 +255,7 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
                     onTap: () => _selectDueDate(context),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
 
 
                 // Start and End Time
@@ -264,7 +264,7 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
                   style: TextStyle(
                     fontFamily: 'Arista',
                     color: Colors.black,
-                    fontSize: 25,
+                    fontSize: 21,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -280,14 +280,14 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
                         child: ListTile(
                           title: Text(
                             'Start: ${_startTime.format(context)}',
-                            style: TextStyle(color: Colors.white, fontFamily: 'KeepCalm', fontSize: 11),
+                            style: TextStyle(color: Colors.white, fontFamily: 'KeepCalm', fontSize: 10),
                           ),
                           trailing: Icon(Icons.access_time, color: Colors.green),
                           onTap: () => _selectTime(context, true),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 16), // Khoảng cách giữa hai khung
+                    const SizedBox(width: 5), // Khoảng cách giữa hai khung
                     Expanded(
                       child: Container(
                         padding: const EdgeInsets.all(5.0),
@@ -307,7 +307,7 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
 
 
                 // Priority dropdown
@@ -316,7 +316,7 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
                   style: TextStyle(
                     fontFamily: 'Arista', // Set font to Arista
                     color: Colors.black,
-                    fontSize: 25,
+                    fontSize: 21,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -355,7 +355,7 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
                       style: TextStyle(
                         fontFamily: 'Arista', // Set font to Arista
                         color: Colors.black,
-                          fontSize: 22
+                          fontSize: 21
                       ),
                     ),
                     Switch(

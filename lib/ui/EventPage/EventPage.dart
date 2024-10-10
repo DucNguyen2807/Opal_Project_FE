@@ -73,7 +73,7 @@ class _EventPageState extends State<EventPage> {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text('Event Page'),
-        backgroundColor: Colors.greenAccent,
+        backgroundColor: Color(0xFFFFA965),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),

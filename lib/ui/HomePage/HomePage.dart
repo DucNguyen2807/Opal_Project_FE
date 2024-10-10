@@ -1,12 +1,16 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:opal_project/ui/FeedBird/FeedBird.dart';
 import 'package:opal_project/ui/customer-calendar/CustomCalendar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:collection';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:opal_project/ui/EventPage/EventPage.dart';
 import 'package:opal_project/ui/my-task/mytask.dart';
 import 'package:opal_project/ui/settings/settings.dart';
 import 'package:opal_project/ui/CustomBottomBar/CustomBottomBar.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 import '../ToDoListPage/ToDoListPage.dart';
 
@@ -21,6 +25,53 @@ class _HomePageState extends State<HomePage> {
   DateTime? _selectedDay;
   LinkedHashMap<DateTime, List<String>> _events = LinkedHashMap();
   bool isWeekView = false;
+
+  @override
+  void initState() {
+    super.initState();
+    getDeviceToken();
+  }
+
+  Future<void> getDeviceToken() async {
+    String? token = await FirebaseMessaging.instance.getToken();
+    print("Device Token: $token");
+
+    if (token != null) {
+      await saveDeviceToken(token);
+    }
+  }
+
+  Future<void> saveDeviceToken(String token) async {
+    final url = Uri.parse('https://opal.io.vn/api/Notification/save_device_token');
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      String? jwtToken = prefs.getString('token');
+
+      if (jwtToken != null) {
+        final response = await http.post(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $jwtToken',
+          },
+          body: json.encode({
+            'deviceToken': token,
+          }),
+        );
+
+        if (response.statusCode == 200) {
+          print('Device token saved successfully');
+        } else {
+          print('Failed to save device token: ${response.body}');
+        }
+      } else {
+        print('JWT Token not found');
+      }
+    } catch (e) {
+      print('Error saving device token: $e');
+    }
+  }
 
   List<String> _layCongViecChoNgay(DateTime day) {
     return _events[day] ?? [];
@@ -54,7 +105,9 @@ class _HomePageState extends State<HomePage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => EventPage(selectedDate: _selectedDay ?? DateTime.now()), // Truyền selectedDate
+              builder: (context) => EventPage(
+                  selectedDate:
+                  _selectedDay ?? DateTime.now()), // Pass selectedDate
             ),
           );
         },
@@ -62,7 +115,7 @@ class _HomePageState extends State<HomePage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => FeedBird(), // Truyền selectedDate
+              builder: (context) => FeedBird(), // Pass selectedDate
             ),
           );
         },
@@ -163,7 +216,8 @@ class _HomePageState extends State<HomePage> {
             onTap: () {
               setState(() {
                 isWeekView = !isWeekView;
-                _calendarFormat = isWeekView ? CalendarFormat.week : CalendarFormat.month;
+                _calendarFormat =
+                isWeekView ? CalendarFormat.week : CalendarFormat.month;
               });
             },
             child: Container(
@@ -211,7 +265,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _xayDungDanhSachCongViec() {
-    List<String> congViecChoNgay = _layCongViecChoNgay(_selectedDay ?? DateTime.now());
+    List<String> congViecChoNgay =
+    _layCongViecChoNgay(_selectedDay ?? DateTime.now());
 
     if (congViecChoNgay.isEmpty) {
       return Text('Không có công việc cho ngày này.');
