@@ -16,6 +16,8 @@ class AuthService extends BaseApiService {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('token', response['token']);
       await prefs.setString('userInfo', jsonEncode(response['userInfo']));
+      String userId = response['userInfo']['userId'];
+      await prefs.setString('userId', userId);
       print('Login successful and data saved');
     }
 
