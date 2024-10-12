@@ -13,7 +13,6 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "com.example.opal_project"
-    compileSdk = 34 // Cập nhật lên phiên bản SDK mới nhất
 
     compileSdk = 34
 
@@ -26,15 +25,12 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = '1.8' // Sử dụng chuỗi thay vì JavaVersion
         jvmTarget = '1.8'
         jvmTarget = JavaVersion.VERSION_1_8
     }
 
     defaultConfig {
         applicationId = "com.example.opal_project"
-        minSdk = 21 // Bạn có thể điều chỉnh theo yêu cầu của ứng dụng
-        targetSdk = 34 // Cập nhật lên phiên bản SDK mới nhất
         minSdk = 21
         targetSdk = 34
         minSdk = flutter.minSdkVersion
@@ -55,11 +51,8 @@ android {
     buildTypes {
         release {
             signingConfig = signingConfigs.release
-            minifyEnabled true // Kích hoạt shrinking, obfuscation và tối ưu hóa cho bản phát hành
             minifyEnabled true
             signingConfig = signingConfigs.debug
-            // Enable shrinking, obfuscation, and optimization for release builds
-            minifyEnabled true
             // Add proguard rules for Firebase if required
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
@@ -67,9 +60,9 @@ android {
 }
 
 dependencies {
-    implementation platform('com.google.firebase:firebase-bom:32.1.1') // Firebase BOM (Điều chỉnh phiên bản mới nhất)
-    implementation 'com.google.firebase:firebase-messaging' // Firebase Messaging
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.8.0" // Đảm bảo rằng bạn đã thêm phụ thuộc này
+    implementation platform('com.google.firebase:firebase-bom:32.1.1')
+    implementation 'com.google.firebase:firebase-messaging'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.8.0"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:1.8.0"
 }
 

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:opal_project/ui/theme-provider/theme.dart';
+import '../Payment/premium_screen.dart';
 import '../user-profile/user-profile.dart';
-import 'package:opal_project/ui/UpdatePasswordSetting/update-password.dart'; // Import trang UpdatePasswordScreen
+import 'package:opal_project/ui/UpdatePasswordSetting/update-password.dart';  // Import UpdatePasswordScreen
 
 class SettingsScreen extends StatelessWidget {
   @override
@@ -23,7 +24,7 @@ class SettingsScreen extends StatelessWidget {
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.green),
           onPressed: () {
-            Navigator.pop(context);  // Quay lại màn hình trước
+            Navigator.pop(context);  // Navigate back
           },
         ),
       ),
@@ -34,7 +35,6 @@ class SettingsScreen extends StatelessWidget {
           children: [
             GestureDetector(
               onTap: () async {
-                // Chuyển sang trang UserProfileScreen và nhận kết quả
                 final result = await Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => UserProfileScreen()),
@@ -68,7 +68,6 @@ class SettingsScreen extends StatelessWidget {
             SizedBox(height: 20),
             _buildSettingItem(context, 'Language', 'English', icon: Icons.language),
             _buildSettingItem(context, 'Change Password', '', icon: Icons.lock, onTap: () {
-              // Chuyển sang trang UpdatePasswordScreen
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => UpdatePasswordScreen()),
@@ -81,6 +80,13 @@ class SettingsScreen extends StatelessWidget {
               _showLogoutDialog(context);
             }),
             _buildSettingItem(context, 'Rating', '', icon: Icons.star),
+            // Go Premium button
+            _buildSettingItem(context, 'Go Premium', '', icon: Icons.upgrade, onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => GoPremiumScreen()),
+              );
+            }),
           ],
         ),
       ),
@@ -104,7 +110,7 @@ class SettingsScreen extends StatelessWidget {
       trailing: Switch(
         value: value,
         onChanged: (newValue) {
-          // Xử lý sự kiện khi bật/tắt switch
+          // Handle switch change
         },
       ),
     );
@@ -128,7 +134,7 @@ class SettingsScreen extends StatelessWidget {
               child: Text('Sign out'),
               onPressed: () {
                 Navigator.of(context).pop();
-                // Xử lý sự kiện khi đăng xuất
+                // Handle sign out
               },
             ),
           ],
