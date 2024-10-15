@@ -42,7 +42,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> saveDeviceToken(String token) async {
-    final url = Uri.parse('https://opal.io.vn/api/Notification/save_device_token');
+    final url = Uri.parse('https://10.0.2.2:7203/api/Notification/save_device_token');
 
     try {
       final prefs = await SharedPreferences.getInstance();

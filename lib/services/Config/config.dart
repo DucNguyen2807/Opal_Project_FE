@@ -1,5 +1,5 @@
 class Config {
-  static const String baseUrl = 'https://opal.io.vn/api/';
+  static const String baseUrl = 'https://10.0.2.2:7203/api/';
 
   // User-related endpoints
   static const String loginEndpoint = 'User/login';
@@ -27,4 +27,8 @@ class Config {
   // Feed-related endpoint
   static const String viewParrotEndpoint = 'Feed/view-parrot';
   static const String feedParrotEndpoint = 'Feed/feed-parrot';
+
+  // Subscription-related endpoint
+  static const String activeSubscriptionEndpoint = 'Subscription/active';
+  static const String subscriptionPaymentEndpoint = 'Subscription/subscription-payment';
 }
