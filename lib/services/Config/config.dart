@@ -31,4 +31,8 @@ class Config {
   // Subscription-related endpoint
   static const String activeSubscriptionEndpoint = 'Subscription/active';
   static const String subscriptionPaymentEndpoint = 'Subscription/subscription-payment';
+// Customize-related endpoint
+  static const String getCustomizeByUser = 'Customize/get-customize-by-user';
+  static const String getCustomize = 'Customize/get-customize';
+  static const String chooseCustomize = 'Customize/update-customize-by-me';
 }

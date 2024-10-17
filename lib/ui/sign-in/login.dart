@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:opal_project/ui/forgot-password/forgot-password.dart';
 import 'package:opal_project/ui/HomePage/HomePage.dart';
 import 'package:opal_project/services/UserService/AuthService.dart';
-
+import 'package:opal_project/ui/sign-in/register.dart';
 class OpalLoginScreen extends StatefulWidget {
   const OpalLoginScreen({super.key});
 
@@ -40,6 +40,8 @@ class _OpalLoginScreenState extends State<OpalLoginScreen> {
       }
     }
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -119,13 +121,22 @@ class _OpalLoginScreenState extends State<OpalLoginScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
                   child: TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const OpalRegisterScreen(),
+                        ),
+                      );
+                    },
                     style: TextButton.styleFrom(
                       foregroundColor: const Color(0xFF5C9E31),
                     ),
                     child: const Text('Đăng kí'),
                   ),
                 ),
+
+
                 Container(
                   margin: const EdgeInsets.symmetric(vertical: 8.0),
                   decoration: BoxDecoration(

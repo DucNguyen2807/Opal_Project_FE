@@ -8,7 +8,10 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:opal_project/ui/EventPage/EventPage.dart';
 import 'package:opal_project/ui/my-task/mytask.dart';
 import 'package:opal_project/ui/settings/settings.dart';
+import 'package:opal_project/ui/CustomPage/CustomPage.dart';
 import 'package:opal_project/ui/CustomBottomBar/CustomBottomBar.dart';
+import 'package:opal_project/services/CustomizeService/CustomizeService.dart';
+
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -25,12 +28,33 @@ class _HomePageState extends State<HomePage> {
   DateTime? _selectedDay;
   LinkedHashMap<DateTime, List<String>> _events = LinkedHashMap();
   bool isWeekView = false;
-
+  Map<String, dynamic>? _customizationData;
+  bool _isLoading = true;
   @override
   void initState() {
     super.initState();
     getDeviceToken();
+    _fetchCustomization(); // Gọi API khi widget được khởi tạo
+
   }
+
+  Future<void> _fetchCustomization() async {
+    try {
+      CustomizeService customizeService = CustomizeService();
+      final data = await customizeService.getCustomizeByUser();
+      setState(() {
+        _customizationData = data; // Lưu dữ liệu từ API
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching customization: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+
 
   Future<void> getDeviceToken() async {
     String? token = await FirebaseMessaging.instance.getToken();
@@ -79,9 +103,29 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Center(child: CircularProgressIndicator()); // Hiển thị loading
+    }
+
+    if (_customizationData == null) {
+      return Center(child: Text('Failed to load customization'));
+    }
+
+    // Áp dụng font và màu từ API
+    String font1 = _customizationData!['font1'] ?? 'Arista';
+    String font2 = _customizationData!['font2'] ?? 'KeepCalm';
+    Color backgroundColor = _customizationData!['uiColor'] != null
+        ? Color(int.parse(_customizationData!['uiColor'].substring(2), radix: 16) + 0xFF000000)
+        : Colors.white; // Màu mặc định nếu ui_color là null
+
+    void _reloadData() {
+      _fetchCustomization(); // Gọi lại phương thức này để tải dữ liệu
+    }
+
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: backgroundColor,
       body: SafeArea(
+        child: SingleChildScrollView(
         child: Column(
           children: [
             _xayDungTieuDe(),
@@ -91,9 +135,16 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
+      ),
+
       bottomNavigationBar: CustomBottomBar(
         onFirstButtonPressed: () {
-          // Handle first button press
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => CustomPage()),
+          ).then((_) {
+            _reloadData(); // Tải lại dữ liệu khi trở lại từ CustomPage
+          });
         },
         onSecondButtonPressed: () {
           Navigator.push(
@@ -106,8 +157,7 @@ class _HomePageState extends State<HomePage> {
             context,
             MaterialPageRoute(
               builder: (context) => EventPage(
-                  selectedDate:
-                  _selectedDay ?? DateTime.now()), // Pass selectedDate
+                  selectedDate: _selectedDay ?? DateTime.now()),
             ),
           );
         },
@@ -115,7 +165,7 @@ class _HomePageState extends State<HomePage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => FeedBird(), // Pass selectedDate
+              builder: (context) => FeedBird(),
             ),
           );
         },
@@ -127,7 +177,8 @@ class _HomePageState extends State<HomePage> {
         },
       ),
     );
-  }
+
+}
 
   Widget _xayDungTieuDe() {
     return Padding(
@@ -238,49 +289,30 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _xayDungLich() {
-    return Column(
-      children: [
-        CustomCalendar(
-          focusedDay: _focusedDay,
-          selectedDay: _selectedDay,
-          calendarFormat: _calendarFormat,
-          onDaySelected: (selectedDay, focusedDay) {
-            setState(() {
-              _selectedDay = selectedDay;
-              _focusedDay = focusedDay;
-            });
-          },
-          onFormatChanged: (format) {
-            if (_calendarFormat != format) {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          CustomCalendar(
+            focusedDay: _focusedDay,
+            selectedDay: _selectedDay,
+            calendarFormat: _calendarFormat,
+            onDaySelected: (selectedDay, focusedDay) {
               setState(() {
-                _calendarFormat = format;
+                _selectedDay = selectedDay;
+                _focusedDay = focusedDay;
               });
-            }
-          },
-        ),
-        const SizedBox(height: 16),
-        _xayDungDanhSachCongViec(),
-      ],
-    );
-  }
-
-  Widget _xayDungDanhSachCongViec() {
-    List<String> congViecChoNgay =
-    _layCongViecChoNgay(_selectedDay ?? DateTime.now());
-
-    if (congViecChoNgay.isEmpty) {
-      return Text('Không có công việc cho ngày này.');
-    }
-
-    return ListView.builder(
-      shrinkWrap: true,
-      itemCount: congViecChoNgay.length,
-      itemBuilder: (context, index) {
-        return ListTile(
-          title: Text(congViecChoNgay[index]),
-          leading: Icon(Icons.task_alt),
-        );
-      },
+            },
+            onFormatChanged: (format) {
+              if (_calendarFormat != format) {
+                setState(() {
+                  _calendarFormat = format;
+                });
+              }
+            },
+          ),
+          const SizedBox(height: 16),
+        ],
+      ),
     );
   }
 }

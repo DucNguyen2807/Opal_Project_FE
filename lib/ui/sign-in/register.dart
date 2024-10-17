@@ -36,7 +36,6 @@ class _OpalRegisterScreenState extends State<OpalRegisterScreen> {
       print('Response Message: ${response['message']}');
 
       if (response['status'] == 'success') {
-        print('Navigating to login screen...');
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const OpalLoginScreen()),
@@ -102,7 +101,7 @@ class _OpalRegisterScreenState extends State<OpalRegisterScreen> {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 10),
-                _buildTextField('Tên tài khoản', _usernameController),
+                _buildTextField('Email', _usernameController),
                 const SizedBox(height: 10),
                 _buildTextField('Họ tên', _fullnameController),
                 const SizedBox(height: 10),

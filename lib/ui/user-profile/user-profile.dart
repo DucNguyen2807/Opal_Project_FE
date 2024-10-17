@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:opal_project/services/UserService/AuthService.dart';
+import 'package:opal_project/services/CustomizeService/CustomizeService.dart';
 
 class UserProfileScreen extends StatefulWidget {
   const UserProfileScreen({super.key});
@@ -14,6 +15,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   String _email = '';
   String _phoneNumber = '';
   final AuthService _authService = AuthService();
+  Map<String, dynamic>? _customizationData;
+
 
   // Tạo các TextEditingController
   final TextEditingController _fullNameController = TextEditingController();
@@ -24,6 +27,24 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   void initState() {
     super.initState();
     _loadUserInfo();
+    _fetchCustomization();
+  }
+  bool _isLoading = true;
+
+  Future<void> _fetchCustomization() async {
+    try {
+      CustomizeService customizeService = CustomizeService();
+      final data = await customizeService.getCustomizeByUser();
+      setState(() {
+        _customizationData = data;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching customization: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   Future<void> _loadUserInfo() async {
@@ -63,22 +84,38 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    String font1 = _customizationData?['font1'] ?? 'Arista';
+    String font2 = _customizationData?['font2'] ?? 'KeepCalm';
+    Color backgroundColor = _customizationData?['uiColor'] != null
+        ? Color(int.parse(_customizationData!['uiColor'].substring(2), radix: 16) + 0xFF000000)
+        : Colors.white; // Màu mặc định nếu ui_color là null
+    Color textBoxColor = _customizationData?['textBoxColor'] != null
+        ? Color(int.parse(_customizationData!['textBoxColor'].substring(2), radix: 16) + 0xFF000000)
+        : Colors.white;
+    Color buttonColor = _customizationData?['buttonColor'] != null
+        ? Color(int.parse(_customizationData!['buttonColor'].substring(2), radix: 16) + 0xFF000000)
+        : Colors.green;
+    Color fontColor = _customizationData?['fontColor'] != null
+        ? Color(int.parse(_customizationData!['fontColor'].substring(2), radix: 16) + 0xFF000000)
+        : Colors.green;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF2BC),
+      backgroundColor: backgroundColor,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Thông tin cá nhân',
-          style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold, color: fontColor), // Changed here
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.green),
+          icon: Icon(Icons.arrow_back, color: fontColor),
           onPressed: () {
             Navigator.pop(context, true);
           },
         ),
       ),
+
       body: SingleChildScrollView( // Allow scrolling
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -102,16 +139,16 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               ),
               const SizedBox(height: 5),
               buildLabel('Họ và tên :'),
-              buildTextField('Họ và tên của bạn', _fullNameController),
+              buildTextField('Họ và tên của bạn', _fullNameController, textBoxColor),
               const SizedBox(height: 5),
               buildLabel('Email:'),
-              buildTextField('Email', _emailController),
+              buildTextField('Email', _emailController, textBoxColor),
               const SizedBox(height: 5),
               buildLabel('Giới tính:'),
-              buildGenderDropdown(),
+              buildGenderDropdown(textBoxColor),
               const SizedBox(height: 5),
               buildLabel('Số điện thoại:'),
-              buildTextField('Số điện thoại', _phoneNumberController),
+              buildTextField('Số điện thoại', _phoneNumberController, textBoxColor),
               const SizedBox(height: 10),
               ElevatedButton(
                 onPressed: () async {
@@ -133,11 +170,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF73A942),
+                  backgroundColor: textBoxColor,
                   padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                 ),
-                child: const Text('Xác nhận', style: TextStyle(fontSize: 18, color: Colors.white)),
+                child: Text('Xác nhận', style: TextStyle(fontSize: 18, color: Colors.white)),
               ),
             ],
           ),
@@ -160,14 +197,14 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     );
   }
 
-  Widget buildTextField(String hintText, TextEditingController controller) {
+  Widget buildTextField(String hintText, TextEditingController controller, Color textBoxColor) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: TextField(
         controller: controller,
         decoration: InputDecoration(
           filled: true,
-          fillColor: const Color(0xFFFFAA7B),
+          fillColor: textBoxColor,
           hintText: hintText,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(30),
@@ -179,7 +216,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     );
   }
 
-  Widget buildGenderDropdown() {
+  Widget buildGenderDropdown(Color textBoxColor) {
     if (_selectedGender != 'Nam' && _selectedGender != 'Nữ' && _selectedGender != 'Khác') {
       _selectedGender = 'Khác';
     }
@@ -189,7 +226,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         decoration: BoxDecoration(
-          color: const Color(0xFFFFAA7B),
+          color: textBoxColor,
           borderRadius: BorderRadius.circular(30),
         ),
         child: DropdownButton<String>(

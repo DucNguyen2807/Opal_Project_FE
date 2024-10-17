@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:opal_project/services/CustomizeService/CustomizeService.dart'; // Import CustomizeService để gọi API
 
-class CustomCalendar extends StatelessWidget {
+class CustomCalendar extends StatefulWidget {
   final DateTime focusedDay;
   final DateTime? selectedDay;
   final CalendarFormat calendarFormat;
@@ -17,17 +18,60 @@ class CustomCalendar extends StatelessWidget {
   });
 
   @override
+  _CustomCalendarState createState() => _CustomCalendarState();
+}
+
+class _CustomCalendarState extends State<CustomCalendar> {
+  Map<String, dynamic>? _customizationData; // Dữ liệu từ API
+  bool _isLoading = true; // Hiển thị trạng thái chờ
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchCustomization(); // Gọi API khi widget được khởi tạo
+  }
+
+  Future<void> _fetchCustomization() async {
+    try {
+      CustomizeService customizeService = CustomizeService();
+      final data = await customizeService.getCustomizeByUser();
+      setState(() {
+        _customizationData = data; // Lưu dữ liệu từ API
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching customization: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Center(child: CircularProgressIndicator()); // Hiển thị loading
+    }
+
+    if (_customizationData == null) {
+      return Center(child: Text('Failed to load customization'));
+    }
+
+    // Áp dụng font và màu từ API
+    String font1 = _customizationData!['font1'] ?? 'Arista';
+    String font2 = _customizationData!['font2'] ?? 'KeepCalm';
+    Color fontColor = Color(int.parse(_customizationData!['fontColor'].substring(2), radix: 16) + 0xFF000000); // Lấy fontColor từ API
+
     return TableCalendar(
-      focusedDay: focusedDay,
+      focusedDay: widget.focusedDay,
       firstDay: DateTime(2020),
       lastDay: DateTime(2050),
-      calendarFormat: calendarFormat,
+      calendarFormat: widget.calendarFormat,
       selectedDayPredicate: (day) {
-        return isSameDay(selectedDay, day);
+        return isSameDay(widget.selectedDay, day);
       },
-      onDaySelected: onDaySelected,
-      onFormatChanged: onFormatChanged,
+      onDaySelected: widget.onDaySelected,
+      onFormatChanged: widget.onFormatChanged,
       calendarStyle: CalendarStyle(
         todayDecoration: BoxDecoration(
           color: Colors.orangeAccent,
@@ -49,52 +93,51 @@ class CustomCalendar extends StatelessWidget {
           color: Color(0xFFF8F1FF),
           borderRadius: BorderRadius.circular(12),
         ),
-        weekendTextStyle: const TextStyle(
+        weekendTextStyle: TextStyle(
           color: Colors.red,
-          fontFamily: 'KeepCalm', // Font for numbers (weekends)
+          fontFamily: font2, // Áp dụng font2 từ API
         ),
-        defaultTextStyle: const TextStyle(
+        defaultTextStyle: TextStyle(
           color: Colors.black,
-          fontFamily: 'KeepCalm', // Font for numbers (weekdays)
+          fontFamily: font2, // Áp dụng font2 từ API
         ),
-        todayTextStyle: const TextStyle(
+        todayTextStyle: TextStyle(
           color: Colors.white,
-          fontFamily: 'KeepCalm', // Font for today's date
+          fontFamily: font2, // Áp dụng font2 từ API
         ),
-        selectedTextStyle: const TextStyle(
+        selectedTextStyle: TextStyle(
           color: Colors.white,
-          fontFamily: 'KeepCalm', // Font for selected date
+          fontFamily: font2, // Áp dụng font2 từ API
         ),
       ),
       headerStyle: HeaderStyle(
         formatButtonVisible: false,
         titleCentered: true,
-        titleTextStyle: const TextStyle(
+        titleTextStyle: TextStyle(
           fontSize: 24,
-          color: Color(0xFF7EBB42),
-          fontFamily: 'KeepCalm', // Font for month title
+          color: fontColor, // Sử dụng fontColor từ API
+          fontFamily: font2, // Áp dụng font2 từ API
         ),
-        leftChevronIcon: const Icon(Icons.chevron_left, color: Color(0xFF7EBB42)),
-        rightChevronIcon: const Icon(Icons.chevron_right, color: Color(0xFF7EBB42)),
+        leftChevronIcon: Icon(Icons.chevron_left, color: fontColor), // Sử dụng fontColor từ API
+        rightChevronIcon: Icon(Icons.chevron_right, color: fontColor), // Sử dụng fontColor từ API
       ),
       daysOfWeekStyle: DaysOfWeekStyle(
-        weekdayStyle: const TextStyle(
-          color: Color(0xFF7EBB42),
+        weekdayStyle: TextStyle(
+          color: fontColor, // Sử dụng fontColor từ API
           fontSize: 15,
-          fontFamily: 'Arista', // Font for day names (weekdays)
+          fontFamily: font1, // Áp dụng font1 từ API
         ),
-        weekendStyle: const TextStyle(
-          color: Color(0xFF7EBB42),
-          fontFamily: 'Arista', // Font for day names (weekends)
+        weekendStyle: TextStyle(
+          color: fontColor, // Sử dụng fontColor từ API
+          fontFamily: font1, // Áp dụng font1 từ API
           fontSize: 15,
-
         ),
         dowTextFormatter: (date, locale) {
           List<String> dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
           return dayNames[date.weekday % 7];
         },
       ),
-      daysOfWeekHeight: 40, // Adjust this height to create more space for the day names
+      daysOfWeekHeight: 40, // Điều chỉnh khoảng cách giữa tên ngày
     );
   }
 }

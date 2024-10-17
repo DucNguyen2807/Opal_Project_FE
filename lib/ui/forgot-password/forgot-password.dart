@@ -23,7 +23,7 @@ class OpalForgotPasswordScreen extends StatelessWidget {
                   alignment: Alignment.topCenter,
                   child: Image.asset(
                     'assets/icon opal-05.png',
-                    height: 500,
+                    height: 350,
                     fit: BoxFit.contain,
                   ),
                 ),
