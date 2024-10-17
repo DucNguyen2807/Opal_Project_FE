@@ -25,8 +25,8 @@ class Config {
   static const String deleteEventEndpoint ='Events/delete-event';
 
   // Feed-related endpoint
-  static const String viewParrotEndpoint = 'Feed/view-parrot';
-  static const String feedParrotEndpoint = 'Feed/feed-parrot';
+  static const String viewParrotEndpoint = 'Seed/view-parrot';
+  static const String feedParrotEndpoint = 'Seed/feed-parrot';
 
   // Subscription-related endpoint
   static const String activeSubscriptionEndpoint = 'Subscription/active';

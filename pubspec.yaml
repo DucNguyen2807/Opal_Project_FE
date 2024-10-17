@@ -96,6 +96,7 @@ flutter:
     - assets/OPAL character-06.png
     - assets/OPAL character-09.png
     - assets/Opal-15.png
+    - assets/sau.png
   fonts:
     - family: Arista
       fonts:

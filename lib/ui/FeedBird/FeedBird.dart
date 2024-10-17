@@ -74,6 +74,75 @@ class _FeedBirdState extends State<FeedBird> with SingleTickerProviderStateMixin
     }
   }
 
+  Future<void> showFeedDialog() async {
+    TextEditingController seedController = TextEditingController();
+
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Feed Parrot'),
+          content: TextField(
+            controller: seedController,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(hintText: 'Nhập số sâu cho ăn'),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('HỦY'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('OK'),
+              onPressed: () async {
+                final int? seedInput = int.tryParse(seedController.text);
+
+                if (seedInput == null || seedInput <= 0) {
+                  Navigator.of(context).pop();
+                  ScaffoldMessenger.of(this.context).showSnackBar(
+                    SnackBar(content: Text('Vui lòng nhập số sâu hợp lệ')),
+                  );
+                  return;
+                }
+
+                if (seedInput > seedCount) {
+                  Navigator.of(context).pop();
+                  ScaffoldMessenger.of(this.context).showSnackBar(
+                    SnackBar(content: Text('Bạn không đủ sâu để cho ăn')),
+                  );
+                  return;
+                }
+
+                Navigator.of(context).pop();
+                setState(() {
+                  isFeeding = true;
+                  _controller.forward(from: 0);
+                });
+
+                try {
+                  await _feedService.feedParrot(seedInput);
+                  await fetchParrotData();
+                } catch (e) {
+                  print('Error feeding parrot: $e');
+                  ScaffoldMessenger.of(this.context).showSnackBar(
+                    SnackBar(content: Text('Lỗi khi cho vẹt ăn: $e')),
+                  );
+                } finally {
+                  setState(() {
+                    isFeeding = false;
+                  });
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   void dispose() {
     _controller.dispose();
@@ -121,7 +190,7 @@ class _FeedBirdState extends State<FeedBird> with SingleTickerProviderStateMixin
                             child: Row(
                               children: [
                                 Icon(
-                                  Icons.bug_report,
+                                  Icons.adb_outlined,
                                   size: 30,
                                   color: Colors.orangeAccent,
                                 ),
@@ -195,24 +264,7 @@ class _FeedBirdState extends State<FeedBird> with SingleTickerProviderStateMixin
                   child: Center(
                     child: ElevatedButton(
                       onPressed: () async {
-                        try {
-                          setState(() {
-                            isFeeding = true;
-                            _controller.forward(from: 0);
-                          });
-
-                          await _feedService.feedParrot(1);
-
-                          await fetchParrotData();
-                        } catch (e) {
-                          print('Error feeding parrot: $e');
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Lỗi khi cho vẹt ăn: $e')),
-                          );
-                        } finally {
-                          setState(() {
-                          });
-                        }
+                        await showFeedDialog();
                       },
                       style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.black,
