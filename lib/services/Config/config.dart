@@ -28,6 +28,9 @@ class Config {
   static const String viewParrotEndpoint = 'Feed/view-parrot';
   static const String feedParrotEndpoint = 'Feed/feed-parrot';
 
+  // Subscription-related endpoint
+  static const String activeSubscriptionEndpoint = 'Subscription/active';
+  static const String subscriptionPaymentEndpoint = 'Subscription/subscription-payment';
 // Customize-related endpoint
   static const String getCustomizeByUser = 'Customize/get-customize-by-user';
   static const String getCustomize = 'Customize/get-customize';

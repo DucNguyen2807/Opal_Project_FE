@@ -35,6 +35,8 @@ dependencies:
   firebase_messaging: ^14.0.0
   flutter_local_notifications: ^12.0.4
   percent_indicator: ^4.2.3
+  webview_flutter: ^3.0.4
+
   awesome_dialog: ^2.1.1+1
   simple_animations: ^4.2.0
   # The following adds the Cupertino Icons font to your application.
@@ -95,6 +97,7 @@ flutter:
     - assets/OPAL character-07.png
     - assets/OPAL character-06.png
     - assets/OPAL character-09.png
+    - assets/Opal-15.png
   fonts:
     - family: Arista
       fonts:
