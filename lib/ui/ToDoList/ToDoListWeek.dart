@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../model/EventCreateRequestModel.dart';
 import '../../services/EventService/EventService.dart';
+import 'package:opal_project/services/CustomizeService/CustomizeService.dart';
 
 class AddNewEventPage extends StatefulWidget {
   final DateTime selectedDate;
@@ -22,6 +23,13 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
   TimeOfDay _endTime = TimeOfDay(hour: 17, minute: 0);
   String? _priority;
   bool _recurring = false;
+  Map<String, dynamic>? _customizationData;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchCustomization();
+  }
 
   bool _isLoading = false;
 
@@ -139,11 +147,44 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
       });
     }
   }
+  Future<void> _fetchCustomization() async {
+    try {
+      CustomizeService customizeService = CustomizeService();
+      final data = await customizeService.getCustomizeByUser();
+      setState(() {
+        _customizationData = data;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching customization: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
+    // Áp dụng font và màu từ API
+    String font1 = _customizationData?['font1'] ?? 'Arista';
+    String font2 = _customizationData?['font2'] ?? 'KeepCalm';
+    Color backgroundColor = _customizationData?['uiColor'] != null
+        ? Color(int.parse(_customizationData!['uiColor'].substring(2), radix: 16) + 0xFF000000)
+        : Colors.white; // Màu mặc định nếu ui_color là null
+    Color textBoxColor = _customizationData?['textBoxColor'] != null
+        ? Color(int.parse(_customizationData!['textBoxColor'].substring(2), radix: 16) + 0xFF000000)
+        : Colors.white;
+    Color buttonColor = _customizationData?['buttonColor'] != null
+        ? Color(int.parse(_customizationData!['buttonColor'].substring(2), radix: 16) + 0xFF000000)
+        : Colors.green;
+    Color fontColor = _customizationData?['fontColor'] != null
+        ? Color(int.parse(_customizationData!['fontColor'].substring(2), radix: 16) + 0xFF000000)
+        : Colors.green;
+
+
     return Scaffold(
-      backgroundColor: Color(0xFFFFE29A),
+      backgroundColor: backgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -156,10 +197,10 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
         title: Text(
           'ADD NEW EVENT',
           style: TextStyle(
-            fontFamily: 'Arista', // Set font to Arista
+            fontFamily: font1, // Set font to Arista
             fontSize: 35,
             fontWeight: FontWeight.bold,
-            color: Colors.green,
+            color: fontColor,
           ),
         ),
         centerTitle: true,
@@ -177,7 +218,7 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
                 Text(
                   'Title',
                   style: TextStyle(
-                    fontFamily: 'Arista', // Set font to Arista
+                    fontFamily: font1, // Set font to Arista
                     color: Colors.black,
                     fontSize: 21
                   ),
@@ -187,9 +228,9 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
                   controller: _titleController,
                   decoration: InputDecoration(
                     hintText: 'Title of event',
-                    hintStyle: TextStyle(color: Colors.white, fontFamily: 'KeepCalm'),
+                    hintStyle: TextStyle(color: Colors.white, fontFamily: font2),
                     filled: true,
-                    fillColor: Color(0xFFFFA965),
+                    fillColor: textBoxColor,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(20.0),
                       borderSide: BorderSide.none,
@@ -207,7 +248,7 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
                 Text(
                   'Description',
                   style: TextStyle(
-                    fontFamily: 'Arista', // Set font to Arista
+                    fontFamily: font1, // Set font to Arista
                     color: Colors.black,
                       fontSize: 21
                   ),
@@ -218,9 +259,9 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
                   maxLines: 3,
                   decoration: InputDecoration(
                     hintText: 'Content',
-                    hintStyle: TextStyle(color: Colors.white, fontFamily: 'KeepCalm'),
+                    hintStyle: TextStyle(color: Colors.white, fontFamily: font2),
                     filled: true,
-                    fillColor: Color(0xFFFFA965),
+                    fillColor: textBoxColor,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(20.0),
                       borderSide: BorderSide.none,
@@ -234,7 +275,7 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
                 Text(
                   'Due Date',
                   style: TextStyle(
-                    fontFamily: 'Arista',
+                    fontFamily: font1,
                     color: Colors.black,
                     fontSize: 21,
                   ),
@@ -243,13 +284,13 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
                 Container(
                   padding: const EdgeInsets.all(1.0),
                   decoration: BoxDecoration(
-                    color: Color(0xFFFFA965), // Màu cam
+                    color: textBoxColor, // Màu cam
                     borderRadius: BorderRadius.circular(20.0),
                   ),
                   child: ListTile(
                     title: Text(
                       '${DateFormat('dd/MM/yyyy').format(_dueDate)}',
-                      style: TextStyle(color: Colors.white, fontFamily: 'KeepCalm'), // Font trắng
+                      style: TextStyle(color: Colors.white, fontFamily: font2),
                     ),
                     trailing: Icon(Icons.calendar_today, color: Colors.green),
                     onTap: () => _selectDueDate(context),
@@ -262,7 +303,7 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
                 Text(
                   'Start and End Time',
                   style: TextStyle(
-                    fontFamily: 'Arista',
+                    fontFamily: font1,
                     color: Colors.black,
                     fontSize: 21,
                   ),
@@ -274,13 +315,13 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
                       child: Container(
                         padding: const EdgeInsets.all(5.0),
                         decoration: BoxDecoration(
-                          color: Color(0xFFFFA965),
+                          color: textBoxColor,
                           borderRadius: BorderRadius.circular(20.0),
                         ),
                         child: ListTile(
                           title: Text(
                             'Start: ${_startTime.format(context)}',
-                            style: TextStyle(color: Colors.white, fontFamily: 'KeepCalm', fontSize: 10),
+                            style: TextStyle(color: Colors.white, fontFamily: font2, fontSize: 10),
                           ),
                           trailing: Icon(Icons.access_time, color: Colors.green),
                           onTap: () => _selectTime(context, true),
@@ -292,13 +333,13 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
                       child: Container(
                         padding: const EdgeInsets.all(5.0),
                         decoration: BoxDecoration(
-                          color: Color(0xFFFFA965),
+                          color: textBoxColor,
                           borderRadius: BorderRadius.circular(20.0),
                         ),
                         child: ListTile(
                           title: Text(
                             'End: ${_endTime.format(context)}',
-                            style: TextStyle(color: Colors.white, fontFamily: 'KeepCalm', fontSize: 11),
+                            style: TextStyle(color: Colors.white, fontFamily: font2, fontSize: 11),
                           ),
                           trailing: Icon(Icons.access_time, color: Colors.green),
                           onTap: () => _selectTime(context, false),
@@ -314,7 +355,7 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
                 Text(
                   'Priority',
                   style: TextStyle(
-                    fontFamily: 'Arista', // Set font to Arista
+                    fontFamily: font1, // Set font to Arista
                     color: Colors.black,
                     fontSize: 21,
                   ),
@@ -323,15 +364,15 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
                 DropdownButtonFormField<String>(
                   decoration: InputDecoration(
                     filled: true,
-                    fillColor: Color(0xFFFFA965),
+                    fillColor: textBoxColor,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(20.0),
                       borderSide: BorderSide.none,
                     ),
                   ),
                   value: _priority,
-                  hint: Text('Select Priority', style: TextStyle(color: Colors.orange)),
-                  dropdownColor: Color(0xFFFFA965), // Đặt màu cho menu dropdown
+                  hint: Text('Select Priority', style: TextStyle(color: Colors.white)),
+                  dropdownColor: textBoxColor, // Đặt màu cho menu dropdown
                   items: [
                     DropdownMenuItem(child: Text('Quan trọng', style: TextStyle(color: Colors.white)), value: 'Quan trọng'),
                     DropdownMenuItem(child: Text('Bình thường', style: TextStyle(color: Colors.white)), value: 'Bình thường'),
@@ -353,7 +394,7 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
                     Text(
                       'Recurring Event',
                       style: TextStyle(
-                        fontFamily: 'Arista', // Set font to Arista
+                        fontFamily: font1, // Set font to Arista
                         color: Colors.black,
                           fontSize: 21
                       ),
@@ -377,12 +418,12 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
                   child: Text(
                     'Save Event',
                     style: TextStyle(
-                      fontFamily: 'KeepCalm', // Set font to KeepCalm
+                      fontFamily: font2, // Set font to KeepCalm
                       fontSize: 18,
                     ),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
+                    backgroundColor: buttonColor,
                     padding: EdgeInsets.symmetric(vertical: 12.0),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20.0),

@@ -3,6 +3,7 @@ import 'package:opal_project/ui/customer-calendar/CustomCalendar.dart';
 import 'package:opal_project/ui/ToDoList/ToDoListWeek.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../../services/EventService/EventService.dart';
+import 'package:opal_project/services/CustomizeService/CustomizeService.dart';
 
 class EventPage extends StatefulWidget {
   final DateTime selectedDate;
@@ -19,14 +20,31 @@ class _EventPageState extends State<EventPage> {
   DateTime? _selectedDay;
   List<Map<String, dynamic>> _events = [];
   bool _isLoading = true;
+  Map<String, dynamic>? _customizationData;
 
   @override
   void initState() {
     super.initState();
     _selectedDay = widget.selectedDate;
     _fetchEvents(_selectedDay!);
-  }
+    _fetchCustomization();
 
+  }
+  Future<void> _fetchCustomization() async {
+    try {
+      CustomizeService customizeService = CustomizeService();
+      final data = await customizeService.getCustomizeByUser();
+      setState(() {
+        _customizationData = data;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching customization: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
   Future<void> _fetchEvents(DateTime date) async {
     setState(() {
       _isLoading = true;
@@ -69,14 +87,40 @@ class _EventPageState extends State<EventPage> {
 
   @override
   Widget build(BuildContext context) {
+    String font1 = _customizationData?['font1'] ?? 'Arista';
+    String font2 = _customizationData?['font2'] ?? 'KeepCalm';
+    Color backgroundColor = _customizationData?['uiColor'] != null
+        ? Color(int.parse(_customizationData!['uiColor'].substring(2), radix: 16) + 0xFF000000)
+        : Colors.white; // Màu mặc định nếu ui_color là null
+    Color textBoxColor = _customizationData?['textBoxColor'] != null
+        ? Color(int.parse(_customizationData!['textBoxColor'].substring(2), radix: 16) + 0xFF000000)
+        : Colors.white;
+    Color buttonColor = _customizationData?['buttonColor'] != null
+        ? Color(int.parse(_customizationData!['buttonColor'].substring(2), radix: 16) + 0xFF000000)
+        : Colors.green;
+    Color fontColor = _customizationData?['fontColor'] != null
+        ? Color(int.parse(_customizationData!['fontColor'].substring(2), radix: 16) + 0xFF000000)
+        : Colors.green;
+
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: backgroundColor,
       appBar: AppBar(
-        title: Text('Event Page'),
-        backgroundColor: Color(0xFFFFA965),
+        backgroundColor: backgroundColor, // Màu nền của AppBar
+        title: Container(
+          alignment: Alignment.center,
+          margin: EdgeInsets.only(right: 60.0),// Căn giữa tiêu đề
+          child: Text(
+            'Event Page', // Tiêu đề
+            style: TextStyle(
+              color: Colors.white, // Màu chữ
+              fontSize: 30, // Kích thước chữ
+              fontWeight: FontWeight.bold, // Độ đậm của chữ
+            ),
+          ),
+        ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+          icon: Icon(Icons.arrow_back), // Nút quay lại
+          onPressed: () => Navigator.pop(context), // Hành động quay lại
         ),
       ),
       body: SafeArea(
@@ -109,7 +153,7 @@ class _EventPageState extends State<EventPage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.green,
+        backgroundColor: buttonColor,
         child: Icon(Icons.add),
         onPressed: () {
           Navigator.push(

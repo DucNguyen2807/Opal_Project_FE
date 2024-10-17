@@ -22,7 +22,6 @@ class BaseApiService {
       if (response.body.isEmpty) {
         return {'status': 'success'};
       }
-
       try {
         return jsonDecode(response.body);
       } catch (e) {
@@ -30,11 +29,11 @@ class BaseApiService {
         return {'status': 'error', 'message': response.body};
       }
     } else {
-      throw Exception('Failed to post data');
+      print('Error: ${response.body}'); // In ra thông tin lỗi
+      throw Exception('Failed to post data: ${response.body}');
     }
   }
 
-  // Thêm phương thức GET
   Future<Map<String, dynamic>> get(String endpoint, {Map<String, String>? headers}) async {
     final response = await http.get(
       Uri.parse('$baseUrl$endpoint'),
@@ -52,11 +51,11 @@ class BaseApiService {
         return {'status': 'error', 'message': response.body};
       }
     } else {
-      throw Exception('Failed to get data');
+      print('Error: ${response.body}'); // In ra thông tin lỗi
+      throw Exception('Failed to get data: ${response.body}');
     }
   }
 
-  // Thêm phương thức PUT
   Future<Map<String, dynamic>> put(String endpoint, Map<String, String> data, {Map<String, String>? headers}) async {
     final response = await http.put(
       Uri.parse('$baseUrl$endpoint'),
@@ -75,7 +74,8 @@ class BaseApiService {
         return {'status': 'error', 'message': response.body};
       }
     } else {
-      throw Exception('Failed to put data');
+      print('Error: ${response.body}'); // In ra thông tin lỗi
+      throw Exception('Failed to put data: ${response.body}');
     }
   }
 }

@@ -1,0 +1,85 @@
+import 'package:shared_preferences/shared_preferences.dart';
+import '../Config/BaseApiService.dart';
+import '../Config/config.dart';
+import 'dart:convert'; // Đảm bảo rằng bạn đã import dart:convert
+import 'package:http/http.dart' as http;
+
+class CustomizeService extends BaseApiService {
+  CustomizeService() : super(Config.baseUrl);
+
+  Future<Map<String, dynamic>> getCustomizeByUser() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+
+    if (token == null) {
+      throw Exception('Token not found');
+    }
+
+    try {
+      final response = await get('${Config.getCustomizeByUser}', headers: {
+        'Authorization': 'Bearer $token',
+      });
+      return response;
+    } catch (e) {
+      print('Error fetching customization: $e');
+      throw Exception('Failed to fetch customization');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getCustomize() async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl${Config.getCustomize}'), headers: {});
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}'); // In ra phản hồi trực tiếp
+
+      if (response.statusCode == 200) {
+        try {
+          final List<dynamic> jsonResponse = jsonDecode(response.body);
+          final List<Map<String, dynamic>> customizations = List<Map<String, dynamic>>.from(jsonResponse);
+          print('Decoded customizations: $customizations');
+          return customizations;
+        } catch (e) {
+          print('Failed to decode JSON: $e');
+          throw Exception('Failed to decode customization data');
+        }
+      } else {
+        throw Exception('Failed to load customizations: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching customization: $e');
+      throw Exception('Failed to fetch customization');
+    }
+  }
+
+  Future<void> updateUserCustomize(int customizeId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+
+    if (token == null) {
+      throw Exception('Token not found');
+    }
+
+    try {
+      final response = await http.put(
+        Uri.parse('$baseUrl${Config.chooseCustomize}/$customizeId'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print('Customization updated successfully');
+      } else {
+        // Lấy thông tin lỗi từ phản hồi
+        String errorMessage = response.body; // Hoặc sử dụng json.decode nếu có định dạng JSON
+        throw Exception('Failed to update customization: ${response.statusCode} - $errorMessage');
+      }
+    } catch (e) {
+      print('Error updating customization: $e');
+      throw Exception('Failed to update customization');
+    }
+  }
+
+
+}

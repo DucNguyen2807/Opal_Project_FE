@@ -28,8 +28,8 @@ class ResetPasswordScreen extends StatelessWidget {
                     child: Image.asset(
                       'assets/bird.png',
                       fit: BoxFit.cover,
-                      width: 120,
-                      height: 120,
+                      width: 80,
+                      height: 80,
                     ),
                   ),
                 ),

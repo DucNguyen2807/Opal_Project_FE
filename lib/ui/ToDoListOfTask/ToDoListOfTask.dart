@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:opal_project/services/TaskService/TaskService.dart';
 import 'package:opal_project/model/TaskCreateRequestModel.dart';
-
+import 'package:opal_project/services/CustomizeService/CustomizeService.dart';
 class AddNewTaskPage1 extends StatefulWidget {
   final DateTime selectedDate;
 
@@ -22,6 +22,32 @@ class _AddNewTaskPageState1 extends State<AddNewTaskPage1> {
   TimeOfDay _time = TimeOfDay(hour: 9, minute: 0);
   String? _level;
   final TaskService _taskService = TaskService();
+  bool _isLoading = false;
+
+  // Thêm biến để lưu dữ liệu tùy chỉnh
+  Map<String, dynamic>? _customizationData;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchCustomization();
+  }
+
+  Future<void> _fetchCustomization() async {
+    try {
+      CustomizeService customizeService = CustomizeService();
+      final data = await customizeService.getCustomizeByUser();
+      setState(() {
+        _customizationData = data;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching customization: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   Future<void> _selectDueDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -88,8 +114,24 @@ class _AddNewTaskPageState1 extends State<AddNewTaskPage1> {
 
   @override
   Widget build(BuildContext context) {
+    // Áp dụng font và màu từ API
+    String font1 = _customizationData?['font1'] ?? 'Arista';
+    String font2 = _customizationData?['font2'] ?? 'KeepCalm';
+    Color backgroundColor = _customizationData?['uiColor'] != null
+        ? Color(int.parse(_customizationData!['uiColor'].substring(2), radix: 16) + 0xFF000000)
+        : Colors.white; // Màu mặc định nếu ui_color là null
+    Color textBoxColor = _customizationData?['textBoxColor'] != null
+        ? Color(int.parse(_customizationData!['textBoxColor'].substring(2), radix: 16) + 0xFF000000)
+        : Colors.white;
+    Color buttonColor = _customizationData?['buttonColor'] != null
+        ? Color(int.parse(_customizationData!['buttonColor'].substring(2), radix: 16) + 0xFF000000)
+        : Colors.green;
+    Color fontColor = _customizationData?['fontColor'] != null
+        ? Color(int.parse(_customizationData!['fontColor'].substring(2), radix: 16) + 0xFF000000)
+        : Colors.green;
+
     return Scaffold(
-      backgroundColor: Color(0xFFFFE29A),
+      backgroundColor: backgroundColor,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -97,19 +139,19 @@ class _AddNewTaskPageState1 extends State<AddNewTaskPage1> {
             key: _formKey,
             child: ListView(
               children: [
-                _buildHeader(),
+                _buildHeader(font1, fontColor),
                 const SizedBox(height: 16),
-                _buildTextField('Title', _titleController, 'Title of task', 'Please enter a title'),
+                _buildTextField('Title', _titleController, 'Title of task', 'Please enter a title', font1, font2, textBoxColor),
                 const SizedBox(height: 16),
-                _buildTextField('Description', _descriptionController, 'Content', null, maxLines: 3),
+                _buildTextField('Description', _descriptionController, 'Content', null, font1, font2, textBoxColor, maxLines: 3),
                 const SizedBox(height: 16),
-                _buildDatePicker(),
+                _buildDatePicker(textBoxColor, font1, font2),
                 const SizedBox(height: 16),
-                _buildTimePicker(),
+                _buildTimePicker(textBoxColor, font1, font2),
                 const SizedBox(height: 16),
-                _buildLevelDropdown(),
+                _buildLevelDropdown(font1, font2, textBoxColor),
                 const SizedBox(height: 24),
-                _buildConfirmButton(),
+                _buildConfirmButton(buttonColor),
               ],
             ),
           ),
@@ -118,12 +160,12 @@ class _AddNewTaskPageState1 extends State<AddNewTaskPage1> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(String font1, Color fontColor) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.green),
+          icon: Icon(Icons.arrow_back, color: fontColor),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -132,24 +174,25 @@ class _AddNewTaskPageState1 extends State<AddNewTaskPage1> {
         Text(
           'ADD NEW TASK',
           style: TextStyle(
-            fontFamily: 'Arista',
+            fontFamily: font1,
             fontSize: 27.0,
             fontWeight: FontWeight.bold,
-            color: Colors.green,
+            color: fontColor,
           ),
         ),
       ],
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller, String hint, String? errorText, {int maxLines = 1}) {
+
+  Widget _buildTextField(String label, TextEditingController controller, String hint, String? errorText, String font1, String font2, Color textBoxColor, {int maxLines = 1}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
           style: TextStyle(
-            fontFamily: 'Arista',
+            fontFamily: font1,
             fontSize: 21,
             color: Colors.black,
           ),
@@ -160,41 +203,41 @@ class _AddNewTaskPageState1 extends State<AddNewTaskPage1> {
           maxLines: maxLines,
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: TextStyle(color: Colors.white, fontFamily: 'KeepCalm'),
+            hintStyle: TextStyle(color: Colors.white, fontFamily: font2),
             filled: true,
-            fillColor: Color(0xFFFFA965),
+            fillColor: textBoxColor,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(20.0),
               borderSide: BorderSide.none,
             ),
           ),
           validator: (value) => (errorText != null && (value == null || value.isEmpty)) ? errorText : null,
-          style: TextStyle(fontFamily: 'KeepCalm', color: Colors.white), // Đặt màu cho chữ
+          style: TextStyle(fontFamily: font2, color: Colors.white),
         ),
       ],
     );
   }
 
-  Widget _buildDatePicker() {
+  Widget _buildDatePicker(Color fillColor, String font1, String font2) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Due Date',
-          style: TextStyle(fontFamily: 'Arista', fontSize: 21, color: Colors.black),
+          'Due Date', // Tiêu đề cho ngày
+          style: TextStyle(fontFamily: font1, fontSize: 21, color: Colors.black),
         ),
         const SizedBox(height: 5),
         GestureDetector(
           onTap: () => _selectDueDate(context),
           child: Container(
             decoration: BoxDecoration(
-              color: Color(0xFFFFA965),
+              color: fillColor,
               borderRadius: BorderRadius.circular(20.0),
             ),
             child: ListTile(
               title: Text(
                 '${DateFormat('dd/MM/yyyy').format(_dueDate)}',
-                style: TextStyle(fontFamily: 'KeepCalm', color: Colors.white),
+                style: TextStyle(fontFamily: font2, color: Colors.white),
               ),
               trailing: Icon(Icons.calendar_today, color: Colors.green),
             ),
@@ -204,26 +247,26 @@ class _AddNewTaskPageState1 extends State<AddNewTaskPage1> {
     );
   }
 
-  Widget _buildTimePicker() {
+  Widget _buildTimePicker(Color fillColor, String font1, String font2) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Time',
-          style: TextStyle(fontFamily: 'Arista', fontSize: 21, color: Colors.black),
+          'Time', // Tiêu đề cho thời gian
+          style: TextStyle(fontFamily: font1, fontSize: 21, color: Colors.black),
         ),
         const SizedBox(height: 5),
         GestureDetector(
           onTap: () => _selectTime(context),
           child: Container(
             decoration: BoxDecoration(
-              color: Color(0xFFFFA965),
+              color: fillColor,
               borderRadius: BorderRadius.circular(20.0),
             ),
             child: ListTile(
               title: Text(
-                '${_time.format(context)}',
-                style: TextStyle(fontSize: 15, fontFamily: 'KeepCalm', color: Colors.white),
+                '${_time.hour}:${_time.minute < 10 ? '0' : ''}${_time.minute}',
+                style: TextStyle(fontFamily: font2, color: Colors.white),
               ),
               trailing: Icon(Icons.access_time, color: Colors.green),
             ),
@@ -233,56 +276,58 @@ class _AddNewTaskPageState1 extends State<AddNewTaskPage1> {
     );
   }
 
-  Widget _buildLevelDropdown() {
+
+  Widget _buildLevelDropdown(String font1, String font2, Color textBoxColor) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Level',
-          style: TextStyle(fontFamily: 'Arista', fontSize: 21, color: Colors.black),
+          'Priority',
+          style: TextStyle(fontFamily: font1, fontSize: 21, color: Colors.black),
         ),
         const SizedBox(height: 5),
         DropdownButtonFormField<String>(
-          value: _level,
-          items: ['Quan trọng', 'Bình thường', 'Thường']
-              .map((level) => DropdownMenuItem(
-            child: Text(
-              level,
-              style: TextStyle(fontFamily: 'Arista', color: Colors.white), // Màu chữ
-            ),
-            value: level,
-          ))
-              .toList(),
           decoration: InputDecoration(
             filled: true,
-            fillColor: Color(0xFFFFA965), // Màu nền cho ô input
+            fillColor: textBoxColor, // Màu nền cho ô dropdown
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(20.0),
               borderSide: BorderSide.none,
             ),
           ),
+          value: _level,
+          hint: Text('Select Priority', style: TextStyle(fontFamily: font2, color: Colors.white)),
           onChanged: (value) {
             setState(() {
               _level = value;
             });
           },
-          validator: (value) => (value == null) ? 'Please select a level' : null,
-          dropdownColor: Color(0xFFFFA965), // Màu nền cho khung dropdown
+          items: ['Quan trọng', 'Bình Thường', 'Thường']
+              .map((level) => DropdownMenuItem(
+            value: level,
+            child: Text(level, style: TextStyle(fontFamily: font1,color: Colors.white )),
+          ))
+              .toList(),
+          dropdownColor: textBoxColor,
         ),
       ],
     );
   }
 
 
-  Widget _buildConfirmButton() {
+
+  Widget _buildConfirmButton(Color buttonColor) {
     return ElevatedButton(
       onPressed: _createNewTask,
-      child: Text('Confirm'),
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.green,
-        padding: EdgeInsets.symmetric(vertical: 15),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20.0),
+        backgroundColor: buttonColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 15.0),
+        child: Text(
+          'Confirm',
+          style: TextStyle(fontSize: 20, color: Colors.white),
         ),
       ),
     );

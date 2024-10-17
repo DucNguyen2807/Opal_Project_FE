@@ -6,6 +6,7 @@ import 'dart:collection';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:opal_project/services/TaskService/TaskService.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:opal_project/services/CustomizeService/CustomizeService.dart';
 
 class ToDoListPage extends StatefulWidget {
   @override
@@ -19,11 +20,14 @@ class _ToDoListPageState extends State<ToDoListPage> {
   LinkedHashMap<DateTime, List<Map<String, dynamic>>> _events = LinkedHashMap();
   late TaskService _taskService;
   bool _isLoading = false;
+  Map<String, dynamic>? _customizationData;
 
   // Màu đồng bộ
   final Color primaryColor = Color(0xFFFFA965);
   final Color secondaryColor = Color(0xFFFFA965);
   final Color completedTaskColor = Color(0xFFFCE4EC);
+
+
 
   @override
   void initState() {
@@ -31,9 +35,25 @@ class _ToDoListPageState extends State<ToDoListPage> {
     _taskService = TaskService();
 
     _selectedDay = DateTime.now();
-
+    _fetchCustomization();
     _loadTasksForSelectedDay();
   }
+  Future<void> _fetchCustomization() async {
+    try {
+      CustomizeService customizeService = CustomizeService();
+      final data = await customizeService.getCustomizeByUser();
+      setState(() {
+        _customizationData = data;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching customization: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
 
 
   Future<void> _loadTasksForSelectedDay() async {
@@ -64,20 +84,51 @@ class _ToDoListPageState extends State<ToDoListPage> {
     return _events[day] ?? [];
   }
 
+
   @override
   Widget build(BuildContext context) {
+    String font1 = _customizationData?['font1'] ?? 'Arista';
+    String font2 = _customizationData?['font2'] ?? 'KeepCalm';
+    Color backgroundColor = _customizationData?['uiColor'] != null
+        ? Color(int.parse(_customizationData!['uiColor'].substring(2), radix: 16) + 0xFF000000)
+        : Colors.white; // Màu mặc định nếu ui_color là null
+    Color textBoxColor = _customizationData?['textBoxColor'] != null
+        ? Color(int.parse(_customizationData!['textBoxColor'].substring(2), radix: 16) + 0xFF000000)
+        : Colors.white;
+    Color buttonColor = _customizationData?['buttonColor'] != null
+        ? Color(int.parse(_customizationData!['buttonColor'].substring(2), radix: 16) + 0xFF000000)
+        : Colors.green;
+    Color fontColor = _customizationData?['fontColor'] != null
+        ? Color(int.parse(_customizationData!['fontColor'].substring(2), radix: 16) + 0xFF000000)
+        : Colors.green;
+
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: backgroundColor,
       appBar: AppBar(
-        title: Text('To Do List'),
-        backgroundColor: primaryColor, // Sử dụng màu chính
+        backgroundColor: backgroundColor, // Sử dụng màu chính
+        title: Container(
+          alignment: Alignment.center, // Căn giữa tiêu đề
+          margin: EdgeInsets.only(right: 60.0),
+          child: Text(
+            'To Do List',
+            style: TextStyle(
+              color: fontColor, // Áp dụng màu font
+              fontSize: 30, // Kích thước chữ
+              fontWeight: FontWeight.bold, // Độ đậm của chữ
+            ),
+          ),
+        ),
       ),
       body: SafeArea(
         child: Column(
           children: [
             _xayDungLich(),
             const SizedBox(height: 16),
-            Expanded(child: _isLoading ? Center(child: CircularProgressIndicator()) : _xayDungDanhSachCongViec()),
+            Expanded(
+              child: _isLoading
+                  ? Center(child: CircularProgressIndicator())
+                  : _xayDungDanhSachCongViec(textBoxColor),
+            ),
             _xayDungThanhCongCuDuoi(),
           ],
         ),
@@ -101,7 +152,7 @@ class _ToDoListPageState extends State<ToDoListPage> {
     );
   }
 
-  Widget _xayDungDanhSachCongViec() {
+  Widget _xayDungDanhSachCongViec(Color textBoxColor) {
     List<Map<String, dynamic>> congViecChoNgay = _layCongViecChoNgay(_selectedDay ?? DateTime.now());
 
     if (congViecChoNgay.isEmpty) {
@@ -165,7 +216,7 @@ class _ToDoListPageState extends State<ToDoListPage> {
                       Text(
                         task['time'],
                         style: TextStyle(
-                          color: secondaryColor,
+                          color: textBoxColor,
                           fontWeight: FontWeight.bold,
                           fontSize: 22,
                         ),

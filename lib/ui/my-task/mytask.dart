@@ -9,7 +9,8 @@ import '../FeedBird/FeedBird.dart';
 import '../ToDoListPage/ToDoListPage.dart';
 import '../settings/settings.dart';
 import '../HomePage/HomePage.dart';
-
+import 'package:opal_project/services/CustomizeService/CustomizeService.dart';
+import 'package:opal_project/ui/CustomPage/CustomPage.dart';
 
 class MytaskScreen extends StatefulWidget {
   const MytaskScreen({super.key});
@@ -25,12 +26,31 @@ class _MytaskScreenState extends State<MytaskScreen> {
   late TaskService _taskService;
   late String token;
   String formattedDate = DateFormat('MMMM d').format(DateTime.now());
+  Map<String, dynamic>? _customizationData;
 
   @override
   void initState() {
     super.initState();
     _taskService = TaskService();
     _loadTasks(); // Gọi phương thức để load danh sách task
+    _fetchCustomization();
+
+  }
+
+  Future<void> _fetchCustomization() async {
+    try {
+      CustomizeService customizeService = CustomizeService();
+      final data = await customizeService.getCustomizeByUser();
+      setState(() {
+        _customizationData = data;
+        isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching customization: $e');
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   // Phương thức load danh sách task
@@ -91,11 +111,27 @@ class _MytaskScreenState extends State<MytaskScreen> {
 
   @override
   Widget build(BuildContext context) {
+    String font1 = _customizationData?['font1'] ?? 'Arista';
+    String font2 = _customizationData?['font2'] ?? 'KeepCalm';
+    Color backgroundColor = _customizationData?['uiColor'] != null
+        ? Color(int.parse(_customizationData!['uiColor'].substring(2), radix: 16) + 0xFF000000)
+        : Colors.white; // Màu mặc định nếu ui_color là null
+    Color textBoxColor = _customizationData?['textBoxColor'] != null
+        ? Color(int.parse(_customizationData!['textBoxColor'].substring(2), radix: 16) + 0xFF000000)
+        : Colors.white;
+    Color buttonColor = _customizationData?['buttonColor'] != null
+        ? Color(int.parse(_customizationData!['buttonColor'].substring(2), radix: 16) + 0xFF000000)
+        : Colors.green;
+    Color fontColor = _customizationData?['fontColor'] != null
+        ? Color(int.parse(_customizationData!['fontColor'].substring(2), radix: 16) + 0xFF000000)
+        : Colors.green;
+
+
     double completionRate = _calculateCompletionRate(); // Tính toán tỷ lệ hoàn thành
     int totalTasks = tasks.length; // Tổng số nhiệm vụ
     int completedTasks = _taskCompletionStatus.where((status) => status == true).length;
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: backgroundColor,
       body: isLoading
           ? const Center(child: CircularProgressIndicator()) // Hiển thị vòng quay trong khi loading
           : SingleChildScrollView(
@@ -141,7 +177,7 @@ class _MytaskScreenState extends State<MytaskScreen> {
 
             Container(
               decoration: BoxDecoration(
-                color: Colors.orange[100], // Màu nền
+                color: textBoxColor, // Màu nền
                 borderRadius: BorderRadius.circular(12),
               ),
               padding: const EdgeInsets.all(16.0),
@@ -164,7 +200,7 @@ class _MytaskScreenState extends State<MytaskScreen> {
                         SizedBox(height: 10),
                         Text(
                           formattedDate,
-                          style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+                          style: TextStyle(fontSize: 14, color: fontColor),
                         ),
                       ],
                     ),
@@ -212,7 +248,12 @@ class _MytaskScreenState extends State<MytaskScreen> {
         ),
       ),
       bottomNavigationBar: CustomBottomBar(
-        onFirstButtonPressed: () {},
+        onFirstButtonPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => CustomPage()), // Chuyển sang CustomPage
+          );
+        },
         onSecondButtonPressed: () {
           Navigator.push(
             context,

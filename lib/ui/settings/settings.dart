@@ -4,30 +4,81 @@ import 'package:opal_project/ui/theme-provider/theme.dart';
 import '../Payment/premium_screen.dart';
 import '../user-profile/user-profile.dart';
 import 'package:opal_project/ui/UpdatePasswordSetting/update-password.dart';  // Import UpdatePasswordScreen
+import 'package:opal_project/services/CustomizeService/CustomizeService.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
+  @override
+  _SettingsScreenState createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  Map<String, dynamic>? _customizationData;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchCustomization();
+  }
+
+  Future<void> _fetchCustomization() async {
+    try {
+      CustomizeService customizeService = CustomizeService();
+      final data = await customizeService.getCustomizeByUser();
+      setState(() {
+        _customizationData = data;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching customization: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    String font1 = _customizationData?['font1'] ?? 'Arista';
+    String font2 = _customizationData?['font2'] ?? 'KeepCalm';
+    Color backgroundColor = _customizationData?['uiColor'] != null
+        ? Color(int.parse(_customizationData!['uiColor'].substring(2), radix: 16) + 0xFF000000)
+        : Colors.white; // Default color if ui_color is null
+    Color textBoxColor = _customizationData?['textBoxColor'] != null
+        ? Color(int.parse(_customizationData!['textBoxColor'].substring(2), radix: 16) + 0xFF000000)
+        : Colors.white;
+    Color buttonColor = _customizationData?['buttonColor'] != null
+        ? Color(int.parse(_customizationData!['buttonColor'].substring(2), radix: 16) + 0xFF000000)
+        : Colors.green;
+    Color fontColor = _customizationData?['fontColor'] != null
+        ? Color(int.parse(_customizationData!['fontColor'].substring(2), radix: 16) + 0xFF000000)
+        : Colors.green;
+
     final themeProvider = Provider.of<ThemeProvider>(context);
 
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: backgroundColor,
       appBar: AppBar(
-        title: Center(
-          child: Text(
-            'SETTING',
-            style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+        title: Container(
+          alignment: Alignment.center, // Căn giữa tiêu đề
+          margin: EdgeInsets.only(right: 60.0),
+          child: Center( // Căn giữa tiêu đề
+            child: Text(
+              'SETTING',
+              style: TextStyle(color: fontColor, fontWeight: FontWeight.bold, fontSize: 30),
+            ),
           ),
         ),
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        backgroundColor: backgroundColor,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.green),
+          icon: Icon(Icons.arrow_back, color: fontColor),
           onPressed: () {
-            Navigator.pop(context);  // Navigate back
+            Navigator.pop(context);  // Quay lại
           },
         ),
       ),
+
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -55,7 +106,7 @@ class SettingsScreen extends StatelessWidget {
                         'Opal',
                         style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                       ),
-                      Text('Personal information', style: TextStyle(color: Colors.grey, fontSize: 16)),
+                      Text('Personal information', style: TextStyle(color: fontColor, fontSize: 16)),
                     ],
                   ),
                   Spacer(),

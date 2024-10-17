@@ -83,8 +83,8 @@ class _OpalVerificationScreenState extends State<OpalVerificationScreen> {
                     child: Image.asset(
                       'assets/icon opal-05.png',
                       fit: BoxFit.cover,
-                      width: 120,
-                      height: 120,
+                      width: 80,
+                      height: 80,
                     ),
                   ),
                 ),

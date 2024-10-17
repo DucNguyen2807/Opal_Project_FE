@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:opal_project/services/UserService/AuthService.dart';
 import 'package:opal_project/services/Config/CustomException.dart'; // Import CustomException
+import 'package:opal_project/services/CustomizeService/CustomizeService.dart';
 
 class UpdatePasswordScreen extends StatefulWidget {
   @override
@@ -11,30 +12,69 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
   final TextEditingController _currentPasswordController = TextEditingController();
   final TextEditingController _newPasswordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
+  Map<String, dynamic>? _customizationData;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchCustomization();
+  }
 
   final AuthService _authService = AuthService();
 
+  Future<void> _fetchCustomization() async {
+    try {
+      CustomizeService customizeService = CustomizeService();
+      final data = await customizeService.getCustomizeByUser();
+      setState(() {
+        _customizationData = data;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching customization: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    String font1 = _customizationData?['font1'] ?? 'Arista';
+    String font2 = _customizationData?['font2'] ?? 'KeepCalm';
+    Color backgroundColor = _customizationData?['uiColor'] != null
+        ? Color(int.parse(_customizationData!['uiColor'].substring(2), radix: 16) + 0xFF000000)
+        : Colors.white; // Màu mặc định nếu ui_color là null
+    Color textBoxColor = _customizationData?['textBoxColor'] != null
+        ? Color(int.parse(_customizationData!['textBoxColor'].substring(2), radix: 16) + 0xFF000000)
+        : Colors.white;
+    Color buttonColor = _customizationData?['buttonColor'] != null
+        ? Color(int.parse(_customizationData!['buttonColor'].substring(2), radix: 16) + 0xFF000000)
+        : Colors.green;
+    Color fontColor = _customizationData?['fontColor'] != null
+        ? Color(int.parse(_customizationData!['fontColor'].substring(2), radix: 16) + 0xFF000000)
+        : Colors.green;
+
     return Scaffold(
-      backgroundColor: Color(0xFFFFE29A), // Màu nền toàn màn hình
+      backgroundColor: backgroundColor, // Màu nền toàn màn hình
       appBar: AppBar(
         title: Container(
 
           child: Text(
             'Change Password',
             style: TextStyle(
-              fontFamily: 'Arista',
-              color: Colors.green, // Đổi màu chữ thành xanh
+              fontFamily: font1,
+              color: fontColor, // Đổi màu chữ thành xanh
               fontWeight: FontWeight.bold,
               fontSize: 27, // Tăng kích thước chữ
             ),
           ),
         ),
-        backgroundColor: Color(0xFFFFA965), // Đặt màu nền trùng với màu bên dưới
+        backgroundColor: backgroundColor, // Đặt màu nền trùng với màu bên dưới
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white), // Đổi màu icon sang trắng
+          icon: Icon(Icons.arrow_back, color: fontColor), // Đổi màu icon sang trắng
           onPressed: () {
             Navigator.pop(context); // Quay lại màn hình trước
           },
@@ -44,26 +84,26 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
         padding: const EdgeInsets.all(19.0),
         child: ListView(
           children: [
-            _buildTextField('Current Password', _currentPasswordController, 'Enter your current password', Icons.lock),
+            _buildTextField('Current Password', _currentPasswordController, 'Enter your current password', Icons.lock, font1, font2),
             SizedBox(height: 20),
-            _buildTextField('New Password', _newPasswordController, 'Enter your new password', Icons.lock),
+            _buildTextField('New Password', _newPasswordController, 'Enter your new password', Icons.lock, font1, font2),
             SizedBox(height: 20),
-            _buildTextField('Confirm New Password', _confirmPasswordController, 'Confirm your new password', Icons.lock),
+            _buildTextField('Confirm New Password', _confirmPasswordController, 'Confirm your new password', Icons.lock, font1, font2),
             SizedBox(height: 30),
-            _buildUpdateButton(),
+            _buildUpdateButton(font1, buttonColor),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller, String hint, IconData icon) {
+  Widget _buildTextField(String label, TextEditingController controller, String hint, IconData icon, String font1, String font2) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: TextStyle(fontSize: 20, fontFamily: 'Arista', color: Colors.black),
+          style: TextStyle(fontSize: 20, fontFamily: font1, color: Colors.black),
         ),
         SizedBox(height: 8),
         Container(
@@ -79,7 +119,7 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
             obscureText: true,
             decoration: InputDecoration(
               hintText: hint,
-              hintStyle: TextStyle(color: Colors.grey, fontFamily: 'KeepCalm'),
+              hintStyle: TextStyle(color: Colors.grey, fontFamily: font2),
               prefixIcon: Icon(icon, color: Color(0xFFFFA965)), // Thêm biểu tượng
               filled: true,
               fillColor: Colors.white,
@@ -88,14 +128,14 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
                 borderSide: BorderSide.none,
               ),
             ),
-            style: TextStyle(fontFamily: 'Arista', color: Colors.black),
+            style: TextStyle(fontFamily: font1, color: Colors.black),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildUpdateButton() {
+  Widget _buildUpdateButton(String font1, Color buttonColor) {
     return Center(
       child: ElevatedButton(
         onPressed: () async {
@@ -123,9 +163,9 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
             );
           }
         },
-        child: Text('Update Password', style: TextStyle(fontFamily: 'Arista', fontSize: 18)), // Thay đổi kích thước chữ
+        child: Text('Update Password', style: TextStyle(fontFamily: font1, fontSize: 18, color: Colors.black)), // Thay đổi kích thước chữ
         style: ElevatedButton.styleFrom(
-          backgroundColor: Color(0xFFFFA965), // Màu nền nút
+          backgroundColor: buttonColor, // Màu nền nút
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30.0),
           ),
