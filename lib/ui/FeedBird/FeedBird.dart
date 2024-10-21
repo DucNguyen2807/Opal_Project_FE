@@ -12,12 +12,13 @@ class _FeedBirdState extends State<FeedBird> with SingleTickerProviderStateMixin
   double percentGrowth = 0.0;
   bool isLoading = true;
   bool isFeeding = false;
+  bool isTransitioning = false;
 
   final Map<int, String> levelImages = {
-    1: 'assets/OPAL character-08.png',
-    2: 'assets/OPAL character-10.png',
-    3: 'assets/OPAL character-07.png',
-    4: 'assets/OPAL character-06.png',
+    1: 'assets/Trung-lac.gif',
+    2: 'assets/Trung-Opal-lac.gif',
+    3: 'assets/Opal-be-vay-canh.gif',
+    4: 'assets/Opal_lon_1.gif',
   };
 
   late AnimationController _controller;
@@ -55,8 +56,26 @@ class _FeedBirdState extends State<FeedBird> with SingleTickerProviderStateMixin
   Future<void> fetchParrotData() async {
     try {
       final data = await _feedService.viewParrot();
+
+      // Check if we are transitioning from level 1 to level 2
+      if (data['parrotLevel'] == 2 && currentLevel == 1) {
+        setState(() {
+          isTransitioning = true; // Start transition animation
+        });
+
+        await Future.delayed(Duration(seconds: 4)); // Show the transition gif for 2 seconds
+
+        setState(() {
+          currentLevel = data['parrotLevel'];
+          isTransitioning = false; // End transition animation
+        });
+      } else {
+        setState(() {
+          currentLevel = data['parrotLevel'];
+        });
+      }
+
       setState(() {
-        currentLevel = data['parrotLevel'];
         seedCount = data['seedCount'];
         percentGrowth = (data['percentGrowth'] is int)
             ? (data['percentGrowth'] as int).toDouble()
@@ -241,11 +260,19 @@ class _FeedBirdState extends State<FeedBird> with SingleTickerProviderStateMixin
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
-                      Image.asset(
-                        levelImages[currentLevel]!,
-                        width: 470,
-                        height: 470,
-                      ),
+                      // Show transition GIF when transitioning from level 1 to 2
+                      if (isTransitioning)
+                        Image.asset(
+                          'assets/Trung-Opal-no.gif', // Your transition GIF
+                          width: 470,
+                          height: 470,
+                        )
+                      else
+                        Image.asset(
+                          levelImages[currentLevel]!,
+                          width: 470,
+                          height: 470,
+                        ),
                       if (isFeeding)
                         SlideTransition(
                           position: _animation,

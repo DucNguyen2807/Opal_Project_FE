@@ -20,7 +20,7 @@ class SubscriptionService extends BaseApiService {
     final url = Uri.parse('${Config.baseUrl}${Config.subscriptionPaymentEndpoint}');
 
     // Define the redirect URL (ensure this is the correct URL your backend expects)
-    final redirectUrl = 'https://google.com'; // Replace with your actual redirect URL
+    final redirectUrl = 'https://opal-admin.vercel.app/tien?'; // Replace with your actual redirect URL
 
     final response = await http.post(
       url,

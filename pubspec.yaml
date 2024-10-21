@@ -92,13 +92,14 @@ flutter:
     - assets/background.png
     - assets/Artboard 20.png
     - assets/Artboard 21.png
-    - assets/OPAL character-08.png
-    - assets/OPAL character-10.png
-    - assets/OPAL character-07.png
     - assets/OPAL character-06.png
     - assets/OPAL character-09.png
     - assets/Opal-15.png
-    - assets/sau.png
+    - assets/Trung-lac.gif
+    - assets/Trung-Opal-lac.gif
+    - assets/Opal-be-vay-canh.gif
+    - assets/Opal_lon_1.gif
+    - assets/Trung-Opal-no.gif
   fonts:
     - family: Arista
       fonts:
