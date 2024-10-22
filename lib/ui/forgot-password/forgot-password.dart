@@ -1,17 +1,81 @@
 import 'package:flutter/material.dart';
 import '../verify-otp/verify-otp.dart';
 import 'package:opal_project/services/UserService/AuthService.dart';
+import 'package:opal_project/services/CustomizeService/CustomizeService.dart';
+import 'package:opal_project/services/ThemeService/ThemeService.dart';
 
-class OpalForgotPasswordScreen extends StatelessWidget {
+class OpalForgotPasswordScreen extends StatefulWidget {
   const OpalForgotPasswordScreen({super.key});
+
+  @override
+  _OpalForgotPasswordScreenState createState() => _OpalForgotPasswordScreenState();
+}
+
+class _OpalForgotPasswordScreenState extends State<OpalForgotPasswordScreen> {
+  Map<String, dynamic>? _customizationData;
+  Map<String, dynamic>? _themeData;
+  bool _isLoading = true;
+  @override
+  void initState() {
+    super.initState();
+    _fetchCustomization();
+    _fetchTheme();
+  }
+  Future<void> _fetchCustomization() async {
+    try {
+      CustomizeService customizeService = CustomizeService();
+      final data = await customizeService.getCustomizeByUser();
+      setState(() {
+        _customizationData = data;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching customization: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+  Future<void> _fetchTheme() async {
+    try {
+      Themeservice themeService = Themeservice();
+      final data = await themeService.getCustomizeByUser();
+      setState(() {
+        _themeData = data;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching customization: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
     final TextEditingController emailController = TextEditingController();
     final AuthService authService = AuthService();
 
+    String icon5 = _themeData?['icon5'] ?? 'assets/icon opal-05.png';
+
+    Color backgroundColor = _customizationData?['uiColor'] != null
+        ? Color(int.parse(_customizationData!['uiColor'].substring(2), radix: 16) + 0xFF000000)
+        : Color(0xFFFFE29A);
+    Color textBoxColor = _customizationData?['textBoxColor'] != null
+        ? Color(int.parse(_customizationData!['textBoxColor'].substring(2), radix: 16) + 0xFF000000)
+        : Color(0xFFFFA965);
+    Color buttonColor = _customizationData?['buttonColor'] != null
+        ? Color(int.parse(_customizationData!['buttonColor'].substring(2), radix: 16) + 0xFF000000)
+        : Colors.green;
+    Color fontColor = _customizationData?['fontColor'] != null
+        ? Color(int.parse(_customizationData!['fontColor'].substring(2), radix: 16) + 0xFF000000)
+        : Color(0xFF008000);
+
+
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: backgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
@@ -22,18 +86,18 @@ class OpalForgotPasswordScreen extends StatelessWidget {
                 Align(
                   alignment: Alignment.topCenter,
                   child: Image.asset(
-                    'assets/icon opal-05.png',
+                    icon5,
                     height: 350,
                     fit: BoxFit.contain,
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Text(
+                 Text(
                   'Quên mật khẩu',
                   style: TextStyle(
                     fontSize: 30,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF5C9933),
+                    color: fontColor,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -47,7 +111,7 @@ class OpalForgotPasswordScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
-                _buildTextField('Email', emailController),
+                _buildTextField('Email', emailController, textBoxColor),
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () async {
@@ -76,7 +140,7 @@ class OpalForgotPasswordScreen extends StatelessWidget {
                   },
                   child: const Text('Xác nhận'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFFA770),
+                    backgroundColor: textBoxColor,
                     padding: const EdgeInsets.symmetric(vertical: 16.0),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
@@ -91,7 +155,7 @@ class OpalForgotPasswordScreen extends StatelessWidget {
                   },
                   child: const Text('Thử cách khác'),
                   style: TextButton.styleFrom(
-                    foregroundColor: const Color(0xFF5C9E31),
+                    foregroundColor: fontColor,
                   ),
                 ),
               ],
@@ -102,10 +166,10 @@ class OpalForgotPasswordScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller) {
+  Widget _buildTextField(String label, TextEditingController controller, Color textBoxColor) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFFFCBA0),
+        color: textBoxColor,
         borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(
@@ -128,3 +192,4 @@ class OpalForgotPasswordScreen extends StatelessWidget {
     );
   }
 }
+

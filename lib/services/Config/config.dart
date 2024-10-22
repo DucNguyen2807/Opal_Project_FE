@@ -1,5 +1,5 @@
 class Config {
-  static const String baseUrl = 'https://10.0.2.2:7203/api/';
+  static const String baseUrl = 'https://opal.io.vn/api/';
 
   // User-related endpoints
   static const String loginEndpoint = 'User/login';
@@ -35,4 +35,9 @@ class Config {
   static const String getCustomizeByUser = 'Customize/get-customize-by-user';
   static const String getCustomize = 'Customize/get-customize';
   static const String chooseCustomize = 'Customize/update-customize-by-me';
+
+  // Theme-related endpoint
+  static const String getThemeByUser = 'Theme/get-theme-by-user';
+  static const String getTheme = 'Theme/get-theme';
+  static const String chooseTheme = 'Theme/update-theme-by-me';
 }

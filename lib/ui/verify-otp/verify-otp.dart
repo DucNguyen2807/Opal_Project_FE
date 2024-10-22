@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:opal_project/services/UserService/AuthService.dart';
 import '../reset-password/reset-pass.dart';
 import 'package:flutter_countdown_timer/flutter_countdown_timer.dart';
+import 'package:opal_project/services/CustomizeService/CustomizeService.dart';
+import 'package:opal_project/services/ThemeService/ThemeService.dart';
 
 class OpalVerificationScreen extends StatefulWidget {
   final String email;
@@ -15,11 +17,33 @@ class _OpalVerificationScreenState extends State<OpalVerificationScreen> {
   late int endTime;
   final TextEditingController otpController = TextEditingController();
   final AuthService _authService = AuthService();
+  Map<String, dynamic>? _customizationData;
+  Map<String, dynamic>? _themeData;
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
     endTime = DateTime.now().millisecondsSinceEpoch + 600 * 1000;
+    _fetchCustomization();
+    _fetchTheme();
+  }
+
+
+  Future<void> _fetchCustomization() async {
+    try {
+      CustomizeService customizeService = CustomizeService();
+      final data = await customizeService.getCustomizeByUser();
+      setState(() {
+        _customizationData = data;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching customization: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   void _onConfirm() async {
@@ -45,7 +69,21 @@ class _OpalVerificationScreenState extends State<OpalVerificationScreen> {
       _showErrorDialog('Vui lòng nhập mã OTP');
     }
   }
-
+  Future<void> _fetchTheme() async {
+    try {
+      Themeservice themeService = Themeservice();
+      final data = await themeService.getCustomizeByUser();
+      setState(() {
+        _themeData = data;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching customization: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
   void _showErrorDialog(String message) {
     showDialog(
       context: context,
@@ -66,8 +104,20 @@ class _OpalVerificationScreenState extends State<OpalVerificationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    String icon5 = _themeData?['icon5'] ?? 'assets/icon opal-05.png';
+
+    Color backgroundColor = _customizationData?['uiColor'] != null
+        ? Color(int.parse(_customizationData!['uiColor'].substring(2), radix: 16) + 0xFF000000)
+        : Color(0xFFFFE29A);
+    Color buttonColor = _customizationData?['buttonColor'] != null
+        ? Color(int.parse(_customizationData!['buttonColor'].substring(2), radix: 16) + 0xFF000000)
+        : Color(0xFFFFA965);
+    Color fontColor = _customizationData?['fontColor'] != null
+        ? Color(int.parse(_customizationData!['fontColor'].substring(2), radix: 16) + 0xFF000000)
+        : Color(0xFF008000);
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF5EAC9),
+      backgroundColor: backgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
@@ -81,7 +131,7 @@ class _OpalVerificationScreenState extends State<OpalVerificationScreen> {
                   backgroundColor: Colors.white,
                   child: ClipOval(
                     child: Image.asset(
-                      'assets/icon opal-05.png',
+                      icon5,
                       fit: BoxFit.cover,
                       width: 80,
                       height: 80,
@@ -89,12 +139,12 @@ class _OpalVerificationScreenState extends State<OpalVerificationScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Text(
+                 Text(
                   'Kiểm tra Email của bạn',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF5C9933),
+                    color: fontColor,
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -141,7 +191,7 @@ class _OpalVerificationScreenState extends State<OpalVerificationScreen> {
                 ElevatedButton(
                   onPressed: _onConfirm,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFFA770),
+                    backgroundColor: buttonColor,
                     padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 40),
                   ),
                   child: const Text('Xác nhận'),
@@ -152,7 +202,7 @@ class _OpalVerificationScreenState extends State<OpalVerificationScreen> {
                     // Xử lý gửi lại mã OTP
                   },
                   style: TextButton.styleFrom(
-                    foregroundColor: const Color(0xFF5C9E31),
+                    foregroundColor: fontColor,
                   ),
                   child: const Text('Gửi lại mã'),
                 ),

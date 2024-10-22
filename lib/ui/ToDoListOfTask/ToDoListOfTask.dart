@@ -4,6 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:opal_project/services/TaskService/TaskService.dart';
 import 'package:opal_project/model/TaskCreateRequestModel.dart';
 import 'package:opal_project/services/CustomizeService/CustomizeService.dart';
+import 'package:opal_project/services/ThemeService/ThemeService.dart';
+
 class AddNewTaskPage1 extends StatefulWidget {
   final DateTime selectedDate;
 
@@ -23,6 +25,7 @@ class _AddNewTaskPageState1 extends State<AddNewTaskPage1> {
   String? _level;
   final TaskService _taskService = TaskService();
   bool _isLoading = false;
+  Map<String, dynamic>? _themeData;
 
   // Thêm biến để lưu dữ liệu tùy chỉnh
   Map<String, dynamic>? _customizationData;
@@ -31,6 +34,7 @@ class _AddNewTaskPageState1 extends State<AddNewTaskPage1> {
   void initState() {
     super.initState();
     _fetchCustomization();
+    _fetchTheme();
   }
 
   Future<void> _fetchCustomization() async {
@@ -111,10 +115,25 @@ class _AddNewTaskPageState1 extends State<AddNewTaskPage1> {
       }
     }
   }
+  Future<void> _fetchTheme() async {
+    try {
+      Themeservice themeService = Themeservice();
+      final data = await themeService.getCustomizeByUser();
+      setState(() {
+        _themeData = data;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching customization: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Áp dụng font và màu từ API
+    String backGroundImg = _themeData?['icon2'] ?? '';
     String font1 = _customizationData?['font1'] ?? 'Arista';
     String font2 = _customizationData?['font2'] ?? 'KeepCalm';
     Color backgroundColor = _customizationData?['uiColor'] != null
@@ -132,7 +151,20 @@ class _AddNewTaskPageState1 extends State<AddNewTaskPage1> {
 
     return Scaffold(
       backgroundColor: backgroundColor,
-      body: SafeArea(
+        body: Stack(
+            children: [
+            // Background color
+            Container(color: backgroundColor),
+        // Background image
+        if (backGroundImg.isNotEmpty)
+
+    Image.asset(
+      backGroundImg,
+      fit: BoxFit.cover,
+      width: double.infinity,
+      height: double.infinity,
+    ),
+       SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Form(
@@ -157,6 +189,8 @@ class _AddNewTaskPageState1 extends State<AddNewTaskPage1> {
           ),
         ),
       ),
+          ]
+          )
     );
   }
 

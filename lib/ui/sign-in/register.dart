@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:opal_project/ui/sign-in/login.dart';
 import '../../services/UserService/AuthService.dart';
+import 'package:opal_project/services/CustomizeService/CustomizeService.dart';
+import 'package:opal_project/services/ThemeService/ThemeService.dart';
 
 class OpalRegisterScreen extends StatefulWidget {
   const OpalRegisterScreen({super.key});
@@ -15,9 +17,50 @@ class _OpalRegisterScreenState extends State<OpalRegisterScreen> {
   final TextEditingController _fullnameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final AuthService _authService = AuthService();
+  Map<String, dynamic>? _customizationData;
+  Map<String, dynamic>? _themeData;
 
   bool _isLoading = false;
   String? _errorMessage;
+
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchCustomization();
+    _fetchTheme();
+  }
+
+  Future<void> _fetchTheme() async {
+    try {
+      Themeservice themeService = Themeservice();
+      final data = await themeService.getCustomizeByUser();
+      setState(() {
+        _themeData = data;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching customization: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+  Future<void> _fetchCustomization() async {
+    try {
+      CustomizeService customizeService = CustomizeService();
+      final data = await customizeService.getCustomizeByUser();
+      setState(() {
+        _customizationData = data;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching customization: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   Future<void> _register() async {
     setState(() {
@@ -60,9 +103,44 @@ class _OpalRegisterScreenState extends State<OpalRegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+
+
+    String logo = _themeData?['logo'] ?? 'assets/logo.png';
+    String loginopal = _themeData?['loginOpal'] ?? 'assets/login-opal.png';
+    String backGroundImg = _themeData?['icon15'] ?? '';
+
+    Color backgroundColor = _customizationData?['uiColor'] != null
+        ? Color(int.parse(_customizationData!['uiColor'].substring(2), radix: 16) + 0xFF000000)
+        : Color(0xFFFFE29A);
+
+    Color textBoxColor = _customizationData?['textBoxColor'] != null
+        ? Color(int.parse(_customizationData!['textBoxColor'].substring(2), radix: 16) + 0xFF000000)
+        : Color(0xFFFFA965);
+    Color buttonColor = _customizationData?['buttonColor'] != null
+        ? Color(int.parse(_customizationData!['buttonColor'].substring(2), radix: 16) + 0xFF000000)
+        : Color(0xFFFFA965);
+    Color fontColor = _customizationData?['fontColor'] != null
+        ? Color(int.parse(_customizationData!['fontColor'].substring(2), radix: 16) + 0xFF000000)
+        : Color(0xFF008000);
+
+
+
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: SafeArea(
+      backgroundColor: backgroundColor,
+        body: Stack(
+          children: [
+        // Background image
+        Positioned.fill(
+        child: backGroundImg.isNotEmpty
+          ? Image.asset(
+          backGroundImg,
+          fit: BoxFit.cover,
+        )
+            : Container(color: backgroundColor), // Default background color
+    ),
+
+
+      SafeArea(
         child: SingleChildScrollView(
           child: Container(
             padding: const EdgeInsets.all(11.0),
@@ -75,7 +153,7 @@ class _OpalRegisterScreenState extends State<OpalRegisterScreen> {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 5.0),
                     child: Image.asset(
-                      'assets/logo.png',
+                      logo,
                       height: 70,
                     ),
                   ),
@@ -84,28 +162,28 @@ class _OpalRegisterScreenState extends State<OpalRegisterScreen> {
                 Align(
                   alignment: Alignment.topCenter,
                   child: Image.asset(
-                    'assets/login-opal.png',
+                    loginopal,
                     height: 150,
                     fit: BoxFit.contain,
                   ),
                 ),
                 const SizedBox(height: 10),
 
-                const Text(
+                 Text(
                   'Đăng ký',
                   style: TextStyle(
                     fontSize: 30,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF5C9933),
+                    color: fontColor,
                   ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 10),
-                _buildTextField('Email', _usernameController),
+                _buildTextField('Email', _usernameController, textBoxColor),
                 const SizedBox(height: 10),
-                _buildTextField('Họ tên', _fullnameController),
+                _buildTextField('Họ tên', _fullnameController, textBoxColor),
                 const SizedBox(height: 10),
-                _buildTextField('Số điện thoại', _phoneController),
+                _buildTextField('Số điện thoại', _phoneController, textBoxColor),
                 const SizedBox(height: 10),
 
                 if (_errorMessage != null)
@@ -126,7 +204,7 @@ class _OpalRegisterScreenState extends State<OpalRegisterScreen> {
                   )
                       : const Text('Đăng ký'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFFA770),
+                    backgroundColor: buttonColor,
                     padding: const EdgeInsets.symmetric(vertical: 16.0),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
@@ -150,7 +228,7 @@ class _OpalRegisterScreenState extends State<OpalRegisterScreen> {
                         },
                         child: const Text('Đăng nhập'),
                         style: TextButton.styleFrom(
-                          foregroundColor: const Color(0xFF5C9E31),
+                          foregroundColor: fontColor,
                         ),
                       ),
                     ],
@@ -168,7 +246,7 @@ class _OpalRegisterScreenState extends State<OpalRegisterScreen> {
                   },
                   child: const Text('Term and Privacy Policy'),
                   style: TextButton.styleFrom(
-                    foregroundColor: const Color(0xFF5C9E31),
+                    foregroundColor: fontColor,
                   ),
                 ),
               ],
@@ -176,13 +254,15 @@ class _OpalRegisterScreenState extends State<OpalRegisterScreen> {
           ),
         ),
       ),
+    ],
+        ),
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller, {bool obscureText = false}) {
+  Widget _buildTextField(String label, TextEditingController controller, Color textBoxColor, {bool obscureText = false}) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFFFCBA0),
+        color: textBoxColor,
         borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(

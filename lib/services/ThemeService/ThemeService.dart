@@ -4,12 +4,14 @@ import '../Config/config.dart';
 import 'dart:convert'; // Đảm bảo rằng bạn đã import dart:convert
 import 'package:http/http.dart' as http;
 
-class CustomizeService extends BaseApiService {
-  CustomizeService() : super(Config.baseUrl);
+class Themeservice extends BaseApiService {
+  Themeservice() : super(Config.baseUrl);
 
   Future<Map<String, dynamic>> getCustomizeByUser() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? userId = prefs.getString('userId');  // Lấy userId từ SharedPreferences
+    String? userId = prefs.getString('userId');
+
+    print('User ID: $userId');
 
     if (userId == null) {
       throw Exception('UserId not found');
@@ -17,7 +19,7 @@ class CustomizeService extends BaseApiService {
 
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl${Config.getCustomizeByUser}/$userId'),  // Đưa userId vào URL theo path parameter
+        Uri.parse('$baseUrl${Config.getThemeByUser}/$userId'),
       );
 
       print('Response Status: ${response.statusCode}');
@@ -26,6 +28,10 @@ class CustomizeService extends BaseApiService {
       if (response.statusCode == 200) {
         // Parse JSON từ response.body
         Map<String, dynamic> data = json.decode(response.body);
+
+        // Log dữ liệu đã phân tích
+        print('Parsed Data: ${json.encode(data)}'); // Log JSON ra console
+
         return data;
       } else {
         throw Exception('Failed to get data: ${response.statusCode}');
@@ -38,7 +44,7 @@ class CustomizeService extends BaseApiService {
 
   Future<List<Map<String, dynamic>>> getCustomize() async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl${Config.getCustomize}'), headers: {});
+      final response = await http.get(Uri.parse('$baseUrl${Config.getTheme}'), headers: {});
       print('Response status: ${response.statusCode}');
       print('Response body: ${response.body}'); // In ra phản hồi trực tiếp
 
@@ -71,7 +77,7 @@ class CustomizeService extends BaseApiService {
 
     try {
       final response = await http.put(
-        Uri.parse('$baseUrl${Config.chooseCustomize}/$customizeId'),
+        Uri.parse('$baseUrl${Config.chooseTheme}/$customizeId'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',

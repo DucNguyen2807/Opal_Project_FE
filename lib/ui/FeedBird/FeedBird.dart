@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../services/FeedService/FeedService.dart';
+import 'package:opal_project/services/ThemeService/ThemeService.dart';
 
 class FeedBird extends StatefulWidget {
   @override
@@ -12,6 +13,7 @@ class _FeedBirdState extends State<FeedBird> with SingleTickerProviderStateMixin
   double percentGrowth = 0.0;
   bool isLoading = true;
   bool isFeeding = false;
+  Map<String, dynamic>? _themeData;
   bool isTransitioning = false;
 
   final Map<int, String> levelImages = {
@@ -24,10 +26,11 @@ class _FeedBirdState extends State<FeedBird> with SingleTickerProviderStateMixin
   late AnimationController _controller;
   late Animation<Offset> _animation;
   final Feedservice _feedService = Feedservice();
-
+  bool _isLoading = true;
   @override
   void initState() {
     super.initState();
+    _fetchTheme();
     _controller = AnimationController(
       vsync: this,
       duration: Duration(seconds: 1),
@@ -52,7 +55,21 @@ class _FeedBirdState extends State<FeedBird> with SingleTickerProviderStateMixin
 
     Future.microtask(() => fetchParrotData());
   }
-
+  Future<void> _fetchTheme() async {
+    try {
+      Themeservice themeService = Themeservice();
+      final data = await themeService.getCustomizeByUser();
+      setState(() {
+        _themeData = data;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching customization: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
   Future<void> fetchParrotData() async {
     try {
       final data = await _feedService.viewParrot();
@@ -170,6 +187,9 @@ class _FeedBirdState extends State<FeedBird> with SingleTickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
+
+    String backgroundBird = _themeData?['backgroundBird'] ?? 'assets/background.png';
+
     return Scaffold(
       body: isLoading
           ? Center(child: CircularProgressIndicator())
@@ -177,7 +197,7 @@ class _FeedBirdState extends State<FeedBird> with SingleTickerProviderStateMixin
         children: [
           Positioned.fill(
             child: Image.asset(
-              'assets/background.png',
+              backgroundBird,
               fit: BoxFit.cover,
             ),
           ),

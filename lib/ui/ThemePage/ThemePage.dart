@@ -32,17 +32,17 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.indigo,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: CustomPage(),
+      home: Themepage(),
     );
   }
 }
 
-class CustomPage extends StatefulWidget {
+class Themepage extends StatefulWidget {
   @override
-  _CustomPageState createState() => _CustomPageState();
+  _ThemepageState createState() => _ThemepageState();
 }
 
-class _CustomPageState extends State<CustomPage> with TickerProviderStateMixin {
+class _ThemepageState extends State<Themepage> with TickerProviderStateMixin {
   late CustomizeService _customizeService;
   List<Map<String, dynamic>> _customizations = [];
   bool _isLoading = true;
@@ -309,7 +309,7 @@ class CustomCard extends StatelessWidget {
           Center(
             child: ElevatedButton(
               onPressed: onUpdate,
-              child: Text('Apply Customize', style: TextStyle(color: Colors.white, fontFamily: font2)),
+              child: Text('Apply Theme', style: TextStyle(color: Colors.white, fontFamily: font2)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: fontColor,
                 padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),

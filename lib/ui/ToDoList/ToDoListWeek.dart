@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../model/EventCreateRequestModel.dart';
 import '../../services/EventService/EventService.dart';
 import 'package:opal_project/services/CustomizeService/CustomizeService.dart';
+import 'package:opal_project/services/ThemeService/ThemeService.dart';
 
 class AddNewEventPage extends StatefulWidget {
   final DateTime selectedDate;
@@ -23,18 +24,34 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
   TimeOfDay _endTime = TimeOfDay(hour: 17, minute: 0);
   String? _priority;
   bool _recurring = false;
+  Map<String, dynamic>? _themeData;
   Map<String, dynamic>? _customizationData;
 
   @override
   void initState() {
     super.initState();
+    _fetchTheme();
     _fetchCustomization();
   }
 
   bool _isLoading = false;
 
   final EventService _eventService = EventService();
-
+  Future<void> _fetchTheme() async {
+    try {
+      Themeservice themeService = Themeservice();
+      final data = await themeService.getCustomizeByUser();
+      setState(() {
+        _themeData = data;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching customization: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
   Future<void> _selectDueDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -181,19 +198,33 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
     Color fontColor = _customizationData?['fontColor'] != null
         ? Color(int.parse(_customizationData!['fontColor'].substring(2), radix: 16) + 0xFF000000)
         : Colors.green;
-
+    String backGroundImg = _themeData?['icon3'] ?? '';
 
     return Scaffold(
       backgroundColor: backgroundColor,
-      appBar: AppBar(
+        body: Stack(
+            children: [
+            // Background color
+            Container(color: backgroundColor),
+        // Background image
+        if (backGroundImg.isNotEmpty)
+
+    Image.asset(
+      backGroundImg,
+      fit: BoxFit.cover,
+      width: double.infinity,
+      height: double.infinity,
+    ),
+
+     AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.green),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
+       leading: IconButton(
+         icon: Icon(Icons.arrow_back, color: Colors.green),
+         onPressed: () {
+           Navigator.pop(context);
+         },
+       ),
         title: Text(
           'ADD NEW EVENT',
           style: TextStyle(
@@ -205,7 +236,7 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
         ),
         centerTitle: true,
       ),
-      body: SafeArea(
+      SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: _isLoading
@@ -215,6 +246,7 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
             child: ListView(
               children: [
                 // Title input
+                const SizedBox(height: 40),
                 Text(
                   'Title',
                   style: TextStyle(
@@ -243,7 +275,7 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 13),
+                const SizedBox(height: 15),
 
                 Text(
                   'Description',
@@ -435,6 +467,8 @@ class _AddNewEventPageState extends State<AddNewEventPage> {
           ),
         ),
       ),
+            ],
+        ),
     );
   }
 }

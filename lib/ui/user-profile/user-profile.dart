@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:opal_project/services/UserService/AuthService.dart';
 import 'package:opal_project/services/CustomizeService/CustomizeService.dart';
+import 'package:opal_project/services/ThemeService/ThemeService.dart';
 
 class UserProfileScreen extends StatefulWidget {
   const UserProfileScreen({super.key});
@@ -16,6 +17,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   String _phoneNumber = '';
   final AuthService _authService = AuthService();
   Map<String, dynamic>? _customizationData;
+  Map<String, dynamic>? _themeData;
 
 
   // Tạo các TextEditingController
@@ -28,6 +30,23 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     super.initState();
     _loadUserInfo();
     _fetchCustomization();
+    _fetchTheme();
+
+  }
+  Future<void> _fetchTheme() async {
+    try {
+      Themeservice themeService = Themeservice();
+      final data = await themeService.getCustomizeByUser();
+      setState(() {
+        _themeData = data;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching customization: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
   bool _isLoading = true;
 
@@ -84,17 +103,15 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    String font1 = _customizationData?['font1'] ?? 'Arista';
-    String font2 = _customizationData?['font2'] ?? 'KeepCalm';
+    String loginopal = _themeData?['loginOpal'] ?? 'assets/login-opal.png';
+
     Color backgroundColor = _customizationData?['uiColor'] != null
         ? Color(int.parse(_customizationData!['uiColor'].substring(2), radix: 16) + 0xFF000000)
         : Colors.white; // Màu mặc định nếu ui_color là null
     Color textBoxColor = _customizationData?['textBoxColor'] != null
         ? Color(int.parse(_customizationData!['textBoxColor'].substring(2), radix: 16) + 0xFF000000)
         : Colors.white;
-    Color buttonColor = _customizationData?['buttonColor'] != null
-        ? Color(int.parse(_customizationData!['buttonColor'].substring(2), radix: 16) + 0xFF000000)
-        : Colors.green;
+
     Color fontColor = _customizationData?['fontColor'] != null
         ? Color(int.parse(_customizationData!['fontColor'].substring(2), radix: 16) + 0xFF000000)
         : Colors.green;
@@ -126,7 +143,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               CircleAvatar(
                 radius: 100,
                 backgroundColor: Colors.transparent,
-                backgroundImage: const AssetImage('assets/login-opal.png'),
+                backgroundImage: AssetImage(loginopal),
               ),
               const SizedBox(height: 5),
               const Text(

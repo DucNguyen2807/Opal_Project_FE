@@ -1,18 +1,86 @@
 import 'package:flutter/material.dart';
 import 'package:opal_project/ui/sign-in/login.dart';
 import 'package:opal_project/services/UserService/AuthService.dart';
+import 'package:opal_project/services/CustomizeService/CustomizeService.dart';
+import 'package:opal_project/services/ThemeService/ThemeService.dart';
 
-class ResetPasswordScreen extends StatelessWidget {
-  final String email; // Get the email from the previous screen
+class ResetPasswordScreen extends StatefulWidget {
+  final String email;
   const ResetPasswordScreen({super.key, required this.email});
+
+
+
+  @override
+  _ResetPasswordScreenState createState() => _ResetPasswordScreenState();
+}
+class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
+  Map<String, dynamic>? _themeData;
+  Map<String, dynamic>? _customizationData;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchTheme();
+    _fetchCustomization();
+
+  }
+  Future<void> _fetchTheme() async {
+    try {
+      Themeservice themeService = Themeservice();
+      final data = await themeService.getCustomizeByUser();
+      setState(() {
+        _themeData = data;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching customization: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+  Future<void> _fetchCustomization() async {
+    try {
+      CustomizeService customizeService = CustomizeService();
+      final data = await customizeService.getCustomizeByUser();
+      setState(() {
+        _customizationData = data;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching customization: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
     final TextEditingController passwordController = TextEditingController();
     final TextEditingController confirmPasswordController = TextEditingController();
 
+    String bird = _themeData?['bird'] ?? 'assets/bird.png';
+
+    String font1 = _customizationData?['font1'] ?? 'Arista';
+    String font2 = _customizationData?['font2'] ?? 'KeepCalm';
+    Color backgroundColor = _customizationData?['uiColor'] != null
+        ? Color(int.parse(_customizationData!['uiColor'].substring(2), radix: 16) + 0xFF000000)
+        : Color(0xFFFFE29A);
+    Color textBoxColor = _customizationData?['textBoxColor'] != null
+        ? Color(int.parse(_customizationData!['textBoxColor'].substring(2), radix: 16) + 0xFF000000)
+        : Color(0xFFFFA965);
+    Color buttonColor = _customizationData?['buttonColor'] != null
+        ? Color(int.parse(_customizationData!['buttonColor'].substring(2), radix: 16) + 0xFF000000)
+        : Color(0xFFFFA965);
+    Color fontColor = _customizationData?['fontColor'] != null
+        ? Color(int.parse(_customizationData!['fontColor'].substring(2), radix: 16) + 0xFF000000)
+        : Color(0xFF008000);
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF5EAC9),
+      backgroundColor: backgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
@@ -26,7 +94,7 @@ class ResetPasswordScreen extends StatelessWidget {
                   backgroundColor: Colors.white,
                   child: ClipOval(
                     child: Image.asset(
-                      'assets/bird.png',
+                      bird,
                       fit: BoxFit.cover,
                       width: 80,
                       height: 80,
@@ -34,12 +102,12 @@ class ResetPasswordScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Text(
+                 Text(
                   'Đặt lại mật khẩu',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF5C9933),
+                    color: fontColor,
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -51,9 +119,9 @@ class ResetPasswordScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
-                _buildTextField('Mật khẩu mới', passwordController, obscureText: true),
+                _buildTextField('Mật khẩu mới', passwordController, textBoxColor, obscureText: true),
                 const SizedBox(height: 20),
-                _buildTextField('Nhập lại mật khẩu', confirmPasswordController, obscureText: true),
+                _buildTextField('Nhập lại mật khẩu', confirmPasswordController, textBoxColor, obscureText: true),
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () async {
@@ -68,8 +136,9 @@ class ResetPasswordScreen extends StatelessWidget {
                     }
 
                     try {
+                      // Use widget.email to access the email passed to this screen
                       final response = await AuthService().resetPassword(
-                        email,
+                        widget.email,
                         passwordController.text,
                         confirmPasswordController.text,
                       );
@@ -86,8 +155,9 @@ class ResetPasswordScreen extends StatelessWidget {
                       _showErrorDialog(context, 'Đã xảy ra lỗi: $e');
                     }
                   },
+
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFFA770),
+                    backgroundColor: textBoxColor,
                     padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 40),
                   ),
                   child: const Text('Xác nhận'),
@@ -100,10 +170,10 @@ class ResetPasswordScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller, {bool obscureText = false}) {
+  Widget _buildTextField(String label, TextEditingController controller , Color textBoxColor,  {bool obscureText = false}) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFFFCBA0),
+        color: textBoxColor,
         borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(

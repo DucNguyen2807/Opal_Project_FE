@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:opal_project/ui/sign-in/login.dart';
 import 'package:opal_project/ui/sign-in/register.dart';
+import 'package:opal_project/services/CustomizeService/CustomizeService.dart';
+import 'package:opal_project/services/ThemeService/ThemeService.dart';
 
 void main() {
   runApp(const OpalApp());
@@ -25,26 +27,90 @@ class OpalLandingScreen extends StatefulWidget {
 }
 
 class _OpalLandingScreenState extends State<OpalLandingScreen> {
+  Map<String, dynamic>? _customizationData;
+  Map<String, dynamic>? _themeData;
+
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchCustomization();
+    _fetchTheme();
+  }
+
+  Future<void> _fetchTheme() async {
+    try {
+      Themeservice themeService = Themeservice();
+      final data = await themeService.getCustomizeByUser();
+      setState(() {
+        _themeData = data;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching customization: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _fetchCustomization() async {
+    try {
+      CustomizeService customizeService = CustomizeService();
+      final data = await customizeService.getCustomizeByUser();
+      setState(() {
+        _customizationData = data;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching customization: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
-    double imageHeight = screenHeight < 600 ? screenHeight * 0.6 : screenHeight * 0.8;
-    double imageWidth = screenWidth * 1.5;
-    
+    double imageHeight = screenHeight < 580 ? screenHeight * 0.6 : screenHeight * 0.8;
+    double imageWidth = screenWidth * 1.4;
+
     double logoHeight = screenWidth > 600 ? 150 : 120;
 
+    String bird = _themeData?['bird'] ?? 'assets/bird.png';
+    String logo = _themeData?['logo'] ?? 'assets/logo.png';
+    String backGroundImg = _themeData?['icon15'] ?? '';
+
+    Color backgroundColor = _customizationData?['uiColor'] != null
+        ? Color(int.parse(_customizationData!['uiColor'].substring(2), radix: 16) + 0xFF000000)
+        : Color(0xFFFFE29A); // Màu mặc định là 0xFFFFE29A nếu uiColor là null
+    Color fontColor = _customizationData?['fontColor'] != null
+        ? Color(int.parse(_customizationData!['fontColor'].substring(2), radix: 16) + 0xFF000000)
+        : Color(0xFF008000);
+
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: backgroundColor,
       body: SafeArea(
         child: Stack(
           children: [
+            // Thêm hình nền
+            Positioned.fill(
+              child: backGroundImg.isNotEmpty
+                  ? Image.asset(
+                backGroundImg,
+                fit: BoxFit.cover,
+              )
+                  : Container(color: backgroundColor), // Default background color
+            ),
             Positioned(
               top: screenHeight * 0.1,
               right: -screenWidth * 0.4,
               child: Image.asset(
-                'assets/bird.png',
+                bird,
                 height: imageHeight,
                 width: imageWidth,
                 fit: BoxFit.contain,
@@ -60,13 +126,13 @@ class _OpalLandingScreenState extends State<OpalLandingScreen> {
                     child: Padding(
                       padding: const EdgeInsets.only(top: 16.0),
                       child: Image.asset(
-                        'assets/logo.png',
+                        logo,
                         height: logoHeight,
                       ),
                     ),
                   ),
                   const Spacer(),
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.only(top: 5.0),
                     child: Column(
                       children: [
@@ -75,7 +141,7 @@ class _OpalLandingScreenState extends State<OpalLandingScreen> {
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF7EBB42),
+                            color: fontColor,
                           ),
                         ),
                         SizedBox(height: 8),
@@ -104,7 +170,7 @@ class _OpalLandingScreenState extends State<OpalLandingScreen> {
                             );
                           },
                           style: TextButton.styleFrom(
-                            foregroundColor: const Color(0xFF5C9E31),
+                            foregroundColor: fontColor,
                             textStyle: const TextStyle(fontSize: 18),
                           ),
                           child: const Text('Đăng nhập!'),
@@ -118,7 +184,7 @@ class _OpalLandingScreenState extends State<OpalLandingScreen> {
                             );
                           },
                           style: TextButton.styleFrom(
-                            foregroundColor: const Color(0xFF5C9E31),
+                            foregroundColor: fontColor,
                             textStyle: const TextStyle(fontSize: 18),
                           ),
                           child: const Text('Đăng kí!'),
