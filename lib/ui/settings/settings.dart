@@ -59,10 +59,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     String loginopal = _themeData?['loginOpal'] ?? 'assets/login-opal.png';
-
+    String backGroundImg = _themeData?['icon4'] ?? ''; // Đường dẫn ảnh nền
     Color backgroundColor = _customizationData?['uiColor'] != null
         ? Color(int.parse(_customizationData!['uiColor'].substring(2), radix: 16) + 0xFF000000)
-        : Colors.white; // Default color if ui_color is null
+        : Colors.white; // Màu nền mặc định nếu ui_color là null
 
     Color fontColor = _customizationData?['fontColor'] != null
         ? Color(int.parse(_customizationData!['fontColor'].substring(2), radix: 16) + 0xFF000000)
@@ -76,7 +76,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         title: Container(
           alignment: Alignment.center, // Căn giữa tiêu đề
           margin: EdgeInsets.only(right: 60.0),
-          child: Center( // Căn giữa tiêu đề
+          child: Center(
             child: Text(
               'SETTING',
               style: TextStyle(color: fontColor, fontWeight: FontWeight.bold, fontSize: 30),
@@ -88,75 +88,89 @@ class _SettingsScreenState extends State<SettingsScreen> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: fontColor),
           onPressed: () {
-            Navigator.pop(context);  // Quay lại
+            Navigator.pop(context); // Quay lại
           },
         ),
       ),
-
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            GestureDetector(
-              onTap: () async {
-                final result = await Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => UserProfileScreen()),
-                );
-              },
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 50,
-                    backgroundColor: Colors.transparent,
-                    backgroundImage: AssetImage(loginopal),
-                  ),
-                  SizedBox(width: 16),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Opal',
-                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                      ),
-                      Text('Personal information', style: TextStyle(color: fontColor, fontSize: 16)),
-                    ],
-                  ),
-                  Spacer(),
-                  Icon(Icons.arrow_forward_ios, color: Colors.grey),
-                ],
+      body: Stack(
+        children: [
+          // Ảnh nền, hiển thị nếu `backGroundImg` có giá trị
+          if (backGroundImg.isNotEmpty)
+            Positioned.fill(
+              child: Image.asset(
+                backGroundImg,
+                fit: BoxFit.cover,
               ),
             ),
-            SizedBox(height: 20),
-            Text('Setting', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            SizedBox(height: 20),
-            _buildSettingItem(context, 'Language', 'English', icon: Icons.language),
-            _buildSettingItem(context, 'Change Password', '', icon: Icons.lock, onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => UpdatePasswordScreen()),
-              );
-            }),
-            _buildSettingSwitch(context, 'Notification', true, icon: Icons.notifications),
-            _buildSettingSwitch(context, 'Dark mode', themeProvider.isDarkMode, icon: Icons.dark_mode),
-            _buildSettingItem(context, 'Help', '', icon: Icons.help),
-            _buildSettingItem(context, 'Sign out', '', icon: Icons.exit_to_app, onTap: () {
-              _showLogoutDialog(context);
-            }),
-            _buildSettingItem(context, 'Rating', '', icon: Icons.star),
-            // Go Premium button
-            _buildSettingItem(context, 'Go Premium', '', icon: Icons.upgrade, onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => GoPremiumScreen()),
-              );
-            }),
-          ],
-        ),
+
+          // Nội dung chính của trang
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                GestureDetector(
+                  onTap: () async {
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => UserProfileScreen()),
+                    );
+                  },
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 50,
+                        backgroundColor: Colors.transparent,
+                        backgroundImage: AssetImage(loginopal),
+                      ),
+                      SizedBox(width: 16),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Opal',
+                            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                          ),
+                          Text('Personal information', style: TextStyle(color: fontColor, fontSize: 16)),
+                        ],
+                      ),
+                      Spacer(),
+                      Icon(Icons.arrow_forward_ios, color: Colors.grey),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 20),
+                Text('Setting', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                SizedBox(height: 20),
+                _buildSettingItem(context, 'Language', 'English', icon: Icons.language),
+                _buildSettingItem(context, 'Change Password', '', icon: Icons.lock, onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => UpdatePasswordScreen()),
+                  );
+                }),
+                _buildSettingSwitch(context, 'Notification', true, icon: Icons.notifications),
+                _buildSettingSwitch(context, 'Dark mode', themeProvider.isDarkMode, icon: Icons.dark_mode),
+                _buildSettingItem(context, 'Help', '', icon: Icons.help),
+                _buildSettingItem(context, 'Sign out', '', icon: Icons.exit_to_app, onTap: () {
+                  _showLogoutDialog(context);
+                }),
+                _buildSettingItem(context, 'Rating', '', icon: Icons.star),
+                // Go Premium button
+                _buildSettingItem(context, 'Go Premium', '', icon: Icons.upgrade, onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => GoPremiumScreen()),
+                  );
+                }),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
+
 
   Widget _buildSettingItem(BuildContext context, String title, String subtitle, {IconData? icon, VoidCallback? onTap}) {
     return ListTile(

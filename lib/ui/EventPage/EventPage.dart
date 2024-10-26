@@ -105,7 +105,7 @@ class _EventPageState extends State<EventPage> {
   @override
   Widget build(BuildContext context) {
 
-    String backGroundImg = _themeData?['icon14'] ?? '';
+    String backGroundImg = _themeData?['icon3'] ?? '';
     Color backgroundColor = _customizationData?['uiColor'] != null
         ? Color(int.parse(_customizationData!['uiColor'].substring(2), radix: 16) + 0xFF000000)
         : Colors.white; // Màu mặc định nếu ui_color là null
@@ -122,7 +122,7 @@ class _EventPageState extends State<EventPage> {
         backgroundColor: backgroundColor, // Màu nền của AppBar
         title: Container(
           alignment: Alignment.center,
-          margin: EdgeInsets.only(right: 60.0),// Căn giữa tiêu đề
+          margin: EdgeInsets.only(right: 60.0), // Căn giữa tiêu đề
           child: Text(
             'Event Page', // Tiêu đề
             style: TextStyle(
@@ -137,34 +137,48 @@ class _EventPageState extends State<EventPage> {
           onPressed: () => Navigator.pop(context), // Hành động quay lại
         ),
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            CustomCalendar(
-              focusedDay: _focusedDay,
-              selectedDay: _selectedDay,
-              calendarFormat: _calendarFormat,
-              onDaySelected: (selectedDay, focusedDay) {
-                setState(() {
-                  _selectedDay = selectedDay;
-                  _focusedDay = focusedDay;
-                });
-                _fetchEvents(selectedDay);
-              },
-              onFormatChanged: (format) {
-                setState(() {
-                  _calendarFormat = format;
-                });
-              },
+      body: Stack(
+        children: [
+          // Ảnh nền, hiển thị nếu `backGroundImg` có giá trị
+          if (backGroundImg.isNotEmpty)
+            Positioned.fill(
+              child: Image.asset(
+                backGroundImg,
+                fit: BoxFit.cover,
+              ),
             ),
-            const SizedBox(height: 16),
-            _isLoading
-                ? CircularProgressIndicator()
-                : _events.isEmpty
-                ? Text('No events for this date')
-                : _buildEventList(),
-          ],
-        ),
+
+          // Nội dung chính của trang
+          SafeArea(
+            child: Column(
+              children: [
+                CustomCalendar(
+                  focusedDay: _focusedDay,
+                  selectedDay: _selectedDay,
+                  calendarFormat: _calendarFormat,
+                  onDaySelected: (selectedDay, focusedDay) {
+                    setState(() {
+                      _selectedDay = selectedDay;
+                      _focusedDay = focusedDay;
+                    });
+                    _fetchEvents(selectedDay);
+                  },
+                  onFormatChanged: (format) {
+                    setState(() {
+                      _calendarFormat = format;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+                _isLoading
+                    ? CircularProgressIndicator()
+                    : _events.isEmpty
+                    ? Text('No events for this date')
+                    : _buildEventList(),
+              ],
+            ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: buttonColor,

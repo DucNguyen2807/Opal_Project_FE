@@ -7,6 +7,7 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:opal_project/services/TaskService/TaskService.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:opal_project/services/CustomizeService/CustomizeService.dart';
+import 'package:opal_project/services/ThemeService/ThemeService.dart';
 
 class ToDoListPage extends StatefulWidget {
   @override
@@ -21,7 +22,7 @@ class _ToDoListPageState extends State<ToDoListPage> {
   late TaskService _taskService;
   bool _isLoading = false;
   Map<String, dynamic>? _customizationData;
-
+  Map<String, dynamic>? _themeData;
   // Màu đồng bộ
   final Color primaryColor = Color(0xFFFFA965);
   final Color secondaryColor = Color(0xFFFFA965);
@@ -33,7 +34,7 @@ class _ToDoListPageState extends State<ToDoListPage> {
   void initState() {
     super.initState();
     _taskService = TaskService();
-
+    _fetchTheme();
     _selectedDay = DateTime.now();
     _fetchCustomization();
     _loadTasksForSelectedDay();
@@ -53,7 +54,21 @@ class _ToDoListPageState extends State<ToDoListPage> {
       });
     }
   }
-
+  Future<void> _fetchTheme() async {
+    try {
+      Themeservice themeService = Themeservice();
+      final data = await themeService.getCustomizeByUser();
+      setState(() {
+        _themeData = data;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching customization: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
 
   Future<void> _loadTasksForSelectedDay() async {
@@ -89,54 +104,78 @@ class _ToDoListPageState extends State<ToDoListPage> {
   Widget build(BuildContext context) {
     String font1 = _customizationData?['font1'] ?? 'Arista';
     String font2 = _customizationData?['font2'] ?? 'KeepCalm';
+
+    String backGroundImg = _themeData?['icon2'] ?? '';
+
     Color backgroundColor = _customizationData?['uiColor'] != null
-        ? Color(int.parse(_customizationData!['uiColor'].substring(2), radix: 16) + 0xFF000000)
+        ? Color(
+        int.parse(_customizationData!['uiColor'].substring(2), radix: 16) +
+            0xFF000000)
         : Colors.white; // Màu mặc định nếu ui_color là null
     Color textBoxColor = _customizationData?['textBoxColor'] != null
-        ? Color(int.parse(_customizationData!['textBoxColor'].substring(2), radix: 16) + 0xFF000000)
+        ? Color(
+        int.parse(_customizationData!['textBoxColor'].substring(2), radix: 16) +
+            0xFF000000)
         : Colors.white;
     Color buttonColor = _customizationData?['buttonColor'] != null
-        ? Color(int.parse(_customizationData!['buttonColor'].substring(2), radix: 16) + 0xFF000000)
+        ? Color(
+        int.parse(_customizationData!['buttonColor'].substring(2), radix: 16) +
+            0xFF000000)
         : Colors.green;
     Color fontColor = _customizationData?['fontColor'] != null
-        ? Color(int.parse(_customizationData!['fontColor'].substring(2), radix: 16) + 0xFF000000)
+        ? Color(
+        int.parse(_customizationData!['fontColor'].substring(2), radix: 16) +
+            0xFF000000)
         : Colors.green;
 
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
-        backgroundColor: backgroundColor, // Sử dụng màu chính
-        title: Container(
-          alignment: Alignment.center, // Căn giữa tiêu đề
-          margin: EdgeInsets.only(right: 60.0),
-          child: Text(
-            'To Do List',
-            style: TextStyle(
-              color: fontColor, // Áp dụng màu font
-              fontSize: 30, // Kích thước chữ
-              fontWeight: FontWeight.bold, // Độ đậm của chữ
-            ),
+        backgroundColor: backgroundColor, // Sử dụng màu nền chính
+        elevation: 0, // Xóa bóng của AppBar
+        centerTitle: true, // Căn giữa tiêu đề trực tiếp
+        title: Text(
+          'To Do List',
+          style: TextStyle(
+            color: fontColor, // Màu chữ của tiêu đề
+            fontSize: 30, // Kích thước chữ
+            fontWeight: FontWeight.bold, // Độ đậm của chữ
           ),
         ),
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            _xayDungLich(),
-            const SizedBox(height: 16),
-            Expanded(
-              child: _isLoading
-                  ? Center(child: CircularProgressIndicator())
-                  : _xayDungDanhSachCongViec(textBoxColor),
+      body: Stack(
+        children: [
+          // Ảnh nền, hiển thị nếu `backGroundImg` có giá trị
+          if (backGroundImg.isNotEmpty)
+            Positioned.fill(
+              child: Image.asset(
+                backGroundImg,
+                fit: BoxFit.cover,
+              ),
             ),
-            _xayDungThanhCongCuDuoi(),
-          ],
-        ),
+
+          // Nội dung chính
+          SafeArea(
+            child: Column(
+              children: [
+                _xayDungLich(),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: _isLoading
+                      ? Center(child: CircularProgressIndicator())
+                      : _xayDungDanhSachCongViec(textBoxColor),
+                ),
+                _xayDungThanhCongCuDuoi(),
+              ],
+            ),
+          ),
+        ],
       ),
     );
+
   }
 
-  Widget _xayDungLich() {
+    Widget _xayDungLich() {
     return CustomCalendar(
       focusedDay: _focusedDay,
       selectedDay: _selectedDay,
