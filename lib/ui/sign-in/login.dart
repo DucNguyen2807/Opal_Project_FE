@@ -118,6 +118,38 @@ class _OpalLoginScreenState extends State<OpalLoginScreen> {
     );
   }
 
+  Widget _buildTextField(
+      TextEditingController controller,
+      String labelText,
+      Color fillColor, {
+        bool obscureText = false,
+      }) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      decoration: BoxDecoration(
+        color: fillColor,
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            spreadRadius: 2,
+            blurRadius: 5,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: TextField(
+        controller: controller,
+        obscureText: obscureText,
+        decoration: InputDecoration(
+          labelText: labelText,
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     String logo = _themeData?['logo'] ?? 'assets/logo.png';
@@ -137,19 +169,18 @@ class _OpalLoginScreenState extends State<OpalLoginScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // Background image
           Positioned.fill(
             child: backGroundImg.isNotEmpty
                 ? Image.asset(
               backGroundImg,
               fit: BoxFit.cover,
             )
-                : Container(color: backgroundColor), // Default background color
+                : Container(color: backgroundColor),
           ),
           SafeArea(
             child: SingleChildScrollView(
-              child: Container(
-                padding: const EdgeInsets.all(16.0),
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -277,38 +308,6 @@ class _OpalLoginScreenState extends State<OpalLoginScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildTextField(
-      TextEditingController controller,
-      String labelText,
-      Color fillColor, {
-        bool obscureText = false,
-      }) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8.0),
-      decoration: BoxDecoration(
-        color: fillColor,
-        borderRadius: BorderRadius.circular(30),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: TextField(
-        controller: controller,
-        obscureText: obscureText,
-        decoration: InputDecoration(
-          labelText: labelText,
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-        ),
       ),
     );
   }
